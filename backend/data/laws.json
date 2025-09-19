@@ -1,0 +1,68 @@
+[
+  {
+    "id": "law-1691582400000",
+    "articleNumber": "51",
+    "title": "Working Hours",
+    "content": "The maximum working hours shall be eight hours per day or forty-eight hours per week. During the month of Ramadan, working hours for Muslim workers shall be reduced to six hours per day and thirty-six hours per week, with no reduction in wages. The Minister may issue a resolution for reducing the daily working hours for certain categories of workers or in certain industries or works where working conditions are arduous or harmful to health.",
+    "arabicTitle": "ساعات العمل",
+    "arabicContent": "الحد الأقصى لساعات العمل هو ثماني ساعات في اليوم أو ثمانية وأربعون ساعة في الأسبوع. خلال شهر رمضان، يتم تخفيض ساعات العمل للعمال المسلمين إلى ست ساعات في اليوم وستة وثلاثون ساعة في الأسبوع، دون تخفيض في الأجور. يجوز للوزير إصدار قرار بتخفيض ساعات العمل اليومية لفئات معينة من العمال أو في صناعات أو أعمال معينة حيث تكون ظروف العمل شاقة أو ضارة بالصحة.",
+    "chapter": "Working Hours and Leave",
+    "section": "Working Hours",
+    "relatedArticles": [
+      "52",
+      "53",
+      "54"
+    ],
+    "lastUpdated": "2023-08-09T00:00:00.000Z",
+    "tags": [
+      "working hours",
+      "ramadan",
+      "labor law",
+      "work conditions"
+    ]
+  },
+  {
+    "id": "law-1691582400001",
+    "articleNumber": "116",
+    "title": "Annual Leave",
+    "content": "A worker shall be entitled to annual leave with full pay of not less than thirty days for one year of service. If the period of service is less than one year, the worker shall be entitled to leave in proportion to the period of his service. The employer may determine the date of the annual leave according to work requirements or may grant such leave by rotation to ensure proper conduct of work. The worker shall be notified of the date of his annual leave sufficiently in advance.",
+    "arabicTitle": "الإجازة السنوية",
+    "arabicContent": "يحق للعامل إجازة سنوية بأجر كامل لا تقل عن ثلاثين يوماً عن سنة الخدمة. إذا كانت مدة الخدمة أقل من سنة، يحق للعامل إجازة بنسبة مدة خدمته. يجوز لصاحب العمل تحديد موعد الإجازة السنوية وفقاً لمتطلبات العمل أو منح هذه الإجازة بالتناوب لضمان حسن سير العمل. يجب إخطار العامل بموعد إجازته السنوية قبل وقت كاف.",
+    "chapter": "Working Hours and Leave",
+    "section": "Leave",
+    "relatedArticles": [
+      "117",
+      "118",
+      "119"
+    ],
+    "lastUpdated": "2023-08-09T00:00:00.000Z",
+    "tags": [
+      "annual leave",
+      "vacation",
+      "labor law",
+      "employee rights"
+    ]
+  },
+  {
+    "id": "law-1691582400002",
+    "articleNumber": "40",
+    "title": "Work Permit Requirements",
+    "content": "A non-Bahraini may not be employed without obtaining a work permit from the Labour Market Regulatory Authority in accordance with the rules and procedures determined by a resolution of the Board of Directors of the Authority. The work permit shall be issued for a specific period not exceeding two years, renewable for similar periods. The Authority may revoke the work permit before the expiry of its duration in the cases determined by a resolution of the Board of Directors.",
+    "arabicTitle": "متطلبات تصريح العمل",
+    "arabicContent": "لا يجوز توظيف غير البحريني دون الحصول على تصريح عمل من هيئة تنظيم سوق العمل وفقاً للقواعد والإجراءات التي يحددها قرار من مجلس إدارة الهيئة. يصدر تصريح العمل لمدة محددة لا تتجاوز سنتين، قابلة للتجديد لمدد مماثلة. يجوز للهيئة إلغاء تصريح العمل قبل انتهاء مدته في الحالات التي يحددها قرار من مجلس الإدارة.",
+    "chapter": "Employment of Non-Bahrainis",
+    "section": "Work Permits",
+    "relatedArticles": [
+      "41",
+      "42",
+      "43"
+    ],
+    "lastUpdated": "2023-08-09T00:00:00.000Z",
+    "tags": [
+      "work permit",
+      "foreign workers",
+      "LMRA",
+      "employment"
+    ]
+  }
+]

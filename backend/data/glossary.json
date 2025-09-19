@@ -1,0 +1,33 @@
+[{
+  "id": "term-1691582400000",
+  "term": "LMRA",
+  "definition": "Labour Market Regulatory Authority - A government body that regulates Bahrain's labor market, issues work permits, and manages the employment of foreign workers.",
+  "arabicTerm": "هيئة تنظيم سوق العمل",
+  "arabicDefinition": "هيئة حكومية تنظم سوق العمل في البحرين وتصدر تصاريح العمل وتدير توظيف العمال الأجانب",
+  "category": "Government Bodies",
+  "source": "LMRA Official Website",
+  "lastUpdated": "2023-08-09T00:00:00.000Z",
+  "tags": ["government", "employment", "work permit", "labor market"]
+},
+{
+  "id": "term-1691582400001",
+  "term": "CPR",
+  "definition": "Central Population Registry number - A unique identification number assigned to all residents of Bahrain.",
+  "arabicTerm": "الرقم السكاني",
+  "arabicDefinition": "رقم تعريف فريد مخصص لجميع المقيمين في البحرين",
+  "category": "Identity Documents",
+  "source": "Information & eGovernment Authority",
+  "lastUpdated": "2023-08-09T00:00:00.000Z",
+  "tags": ["identity", "documentation", "residence"]
+},
+{
+  "id": "term-1691582400002",
+  "term": "Sijilat",
+  "definition": "Bahrain's Commercial Registration Portal - An online platform for business registration and licensing.",
+  "arabicTerm": "سجلات",
+  "arabicDefinition": "بوابة السجل التجاري في البحرين - منصة إلكترونية لتسجيل وترخيص الأعمال",
+  "category": "Business Registration",
+  "source": "Ministry of Industry and Commerce",
+  "lastUpdated": "2023-08-09T00:00:00.000Z",
+  "tags": ["business", "registration", "commercial", "license"]
+}]

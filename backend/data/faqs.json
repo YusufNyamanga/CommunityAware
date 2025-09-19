@@ -1,0 +1,33 @@
+[{
+  "id": "faq-1691582400000",
+  "question": "What are the working hours according to Bahrain's labor law?",
+  "answer": "According to Bahrain's Labor Law, the standard working hours are 8 hours per day and 48 hours per week. During Ramadan, Muslim employees' working hours are reduced to 6 hours per day and 36 hours per week. Employees are entitled to at least one day of rest per week.",
+  "arabicQuestion": "ما هي ساعات العمل وفقاً لقانون العمل البحريني؟",
+  "arabicAnswer": "وفقاً لقانون العمل البحريني، ساعات العمل القياسية هي 8 ساعات يومياً و 48 ساعة أسبوعياً. خلال شهر رمضان، يتم تخفيض ساعات عمل الموظفين المسلمين إلى 6 ساعات يومياً و 36 ساعة أسبوعياً. يحق للموظفين الحصول على يوم راحة واحد على الأقل في الأسبوع.",
+  "category": "Labor Law",
+  "source": "Bahrain Labor Law, Article 51",
+  "lastUpdated": "2023-08-09T00:00:00.000Z",
+  "tags": ["working hours", "labor law", "employment"]
+},
+{
+  "id": "faq-1691582400001",
+  "question": "How do I apply for a Commercial Registration (CR) in Bahrain?",
+  "answer": "To apply for a CR in Bahrain: 1. Visit the Sijilat portal (www.sijilat.bh) 2. Create an account and login 3. Choose your business activity 4. Fill in the required information 5. Upload necessary documents 6. Pay the registration fees 7. Wait for approval. The process typically takes 1-3 working days.",
+  "arabicQuestion": "كيف أتقدم بطلب للحصول على سجل تجاري في البحرين؟",
+  "arabicAnswer": "للتقدم بطلب سجل تجاري في البحرين: 1. قم بزيارة بوابة سجلات (www.sijilat.bh) 2. أنشئ حساباً وسجل الدخول 3. اختر نشاطك التجاري 4. املأ المعلومات المطلوبة 5. قم بتحميل المستندات اللازمة 6. ادفع رسوم التسجيل 7. انتظر الموافقة. تستغرق العملية عادةً 1-3 أيام عمل.",
+  "category": "Business Registration",
+  "source": "Ministry of Industry and Commerce",
+  "lastUpdated": "2023-08-09T00:00:00.000Z",
+  "tags": ["business", "registration", "CR", "Sijilat"]
+},
+{
+  "id": "faq-1691582400002",
+  "question": "What is the process for renewing a work permit in Bahrain?",
+  "answer": "To renew a work permit: 1. Login to LMRA's expat portal 2. Select 'Renew Work Permit' 3. Upload required documents (valid passport, CPR) 4. Pay the renewal fees 5. Complete medical examination if required 6. Wait for LMRA approval. Start the process at least 30 days before expiry.",
+  "arabicQuestion": "ما هي إجراءات تجديد تصريح العمل في البحرين؟",
+  "arabicAnswer": "لتجديد تصريح العمل: 1. سجل الدخول إلى بوابة هيئة تنظيم سوق العمل 2. اختر 'تجديد تصريح العمل' 3. قم بتحميل المستندات المطلوبة (جواز سفر ساري، بطاقة هوية) 4. ادفع رسوم التجديد 5. أكمل الفحص الطبي إذا كان مطلوباً 6. انتظر موافقة الهيئة. ابدأ العملية قبل 30 يوماً على الأقل من انتهاء الصلاحية.",
+  "category": "Work Permits",
+  "source": "LMRA Guidelines",
+  "lastUpdated": "2023-08-09T00:00:00.000Z",
+  "tags": ["work permit", "renewal", "LMRA", "employment"]
+}]

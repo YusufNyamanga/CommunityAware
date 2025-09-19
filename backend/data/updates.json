@@ -1,0 +1,36 @@
+[
+  {
+    "id": "update-1691582400000",
+    "type": "law",
+    "content": {
+      "id": "law-1691582400000",
+      "title": "Working Hours",
+      "articleNumber": "51"
+    },
+    "updateDate": "2023-08-09T00:00:00.000Z",
+    "updatedBy": "system",
+    "changeDescription": "Initial law article added to knowledge base"
+  },
+  {
+    "id": "update-1691582400001",
+    "type": "glossary",
+    "content": {
+      "id": "term-1691582400000",
+      "term": "LMRA"
+    },
+    "updateDate": "2023-08-09T00:00:00.000Z",
+    "updatedBy": "system",
+    "changeDescription": "Added LMRA term to glossary"
+  },
+  {
+    "id": "update-1691582400002",
+    "type": "faq",
+    "content": {
+      "id": "faq-1691582400000",
+      "question": "What are the working hours according to Bahrain's labor law?"
+    },
+    "updateDate": "2023-08-09T00:00:00.000Z",
+    "updatedBy": "system",
+    "changeDescription": "Added FAQ about working hours"
+  }
+]
