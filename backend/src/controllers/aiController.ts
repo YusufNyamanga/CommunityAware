@@ -1,8 +1,17 @@
 import { Request, Response } from 'express';
 import { aiService } from '../services/aiService';
-import { ChatMessage, LegalCategory } from '../types';
 
-type Language = 'en' | 'ar';
+// Extended language support to match frontend
+type Language = 'en' | 'ar' | 'zh' | 'zh-tw' | 'es' | 'fr' | 'pt' | 'ru' | 'hi' | 'th' | 'id' | 'ms' | 'tr' | 'ur' | 'bn' | 'ta' | 'te' | 'ml' | 'pa' | 'ne' | 'am' | 'sw' | 'yo' | 'lg' | 'tl';
+type LegalCategory = 'labour-law' | 'company-formation' | 'visa-services' | 'grace-period' | 'lmra' | 'sijilat' | 'general-legal' | 'other';
+
+interface ChatMessage {
+  id: string;
+  content: string;
+  sender: 'user' | 'ai';
+  timestamp: Date;
+  category?: LegalCategory;
+}
 
 interface ChatRequest {
   message: string;
@@ -19,8 +28,10 @@ const validateChatRequest = (req: Request): ChatRequest => {
     throw new Error('Message is required and must be a string');
   }
 
-  if (language && !['en', 'ar'].includes(language)) {
-    throw new Error('Language must be either "en" or "ar"');
+  // Support all languages now handled by DeepSeek
+  const supportedLanguages = ['en', 'ar', 'zh', 'zh-tw', 'es', 'fr', 'pt', 'ru', 'hi', 'th', 'id', 'ms', 'tr', 'ur', 'bn', 'ta', 'te', 'ml', 'pa', 'ne', 'am', 'sw', 'yo', 'lg', 'tl'];
+  if (language && !supportedLanguages.includes(language)) {
+    throw new Error(`Unsupported language. Supported languages: ${supportedLanguages.join(', ')}`);
   }
 
   if (history && !Array.isArray(history)) {
@@ -36,7 +47,7 @@ export const aiController = {
       const response = await aiService.sendMessage(
         'Hello, this is a test message.',
         [],
-        'GENERAL',
+        'general-legal',
         'en'
       );
       res.json(response);
@@ -52,8 +63,7 @@ export const aiController = {
       const { message, language, category, stream, history } = validateChatRequest(req);
       
       // Auto-categorize if category is not provided
-  // Use provided category or default to GENERAL
-  const queryCategory = category || 'GENERAL';
+      const queryCategory = category || aiService.categorizeQuery(message);
 
       if (stream) {
         res.setHeader('Content-Type', 'text/event-stream');

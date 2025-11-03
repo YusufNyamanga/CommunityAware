@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ChatMessage as ChatMessageComponent } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ChatMessage, LegalCategory } from '../types';
-import { qwenService } from '../services/qwenService';
+import { backendApiService } from '../services/backendApiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslations } from '../locales/translations';
 import { Loader } from 'lucide-react';
@@ -309,7 +309,7 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
 
     // Create initial AI message for streaming
     const aiMessageId = (Date.now() + 1).toString();
-    const category = qwenService.categorizeQuery(content);
+    const category = backendApiService.categorizeQuery(content);
     
     const initialAiMessage: ChatMessage = {
       id: aiMessageId,
@@ -324,7 +324,7 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
     try {
       // Get AI response with streaming (Qwen service handles cleaning internally)
       let streamingContent = '';
-      const response = await qwenService.sendMessage(content, messages, category, (chunk: string) => {
+      const response = await backendApiService.sendMessage(content, messages, category, (chunk: string) => {
         // Hide loading indicator once streaming starts
         if (streamingContent === '') {
           setIsLoading(false);
