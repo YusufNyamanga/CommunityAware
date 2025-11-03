@@ -9,6 +9,7 @@ interface ChatMessage {
   id: string;
   content: string;
   sender: 'user' | 'ai';
+  role?: 'user' | 'assistant' | 'system';
   timestamp: Date;
   category?: LegalCategory;
 }
@@ -72,10 +73,13 @@ export const aiController = {
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         try {
-          // Filter out system messages and cast to correct type
-          const filteredHistory = (history || []).filter(
-            msg => msg.role !== 'system'
-          ) as Array<{ role: 'user' | 'assistant'; content: string }>;
+          // Filter out system messages and map to correct type
+          const filteredHistory = (history || [])
+            .filter(msg => msg.role !== 'system')
+            .map(msg => ({
+              role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+              content: msg.content
+            }));
 
           for await (const chunk of aiService.streamMessage(
             message,
@@ -101,10 +105,13 @@ export const aiController = {
       }
 
       // Non-streaming response
-      // Filter out system messages and cast to correct type
-      const filteredHistory = (history || []).filter(
-        msg => msg.role !== 'system'
-      ) as Array<{ role: 'user' | 'assistant'; content: string }>;
+      // Filter out system messages and map to correct type
+      const filteredHistory = (history || [])
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+          content: msg.content
+        }));
 
       const response = await aiService.sendMessage(
         message,

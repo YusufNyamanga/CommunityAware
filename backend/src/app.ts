@@ -13,6 +13,8 @@ import { scheduledScraperService } from './services/scheduledScraperService';
 import { faqDataManagerService } from './services/faqDataManagerService';
 import { faqDatabaseService } from './services/faqDatabaseService';
 import { faqCacheService } from './services/faqCacheService';
+import { webScrapingService } from './services/webScrapingService';
+import { searchService } from './services/searchService';
 
 const app = express();
 const port = process.env.PORT || 5000;

@@ -141,7 +141,7 @@ class AiService {
         model: 'deepseek-chat',
         messages: messages,
         temperature: this.modelConfig.temperature,
-        max_tokens: Math.min(this.modelConfig.maxTokens, 1500), // Reduce for faster response
+        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1500), // Reduce for faster response
         top_p: 0.8, // Slightly more focused for speed
         stream: false,
         frequency_penalty: 0.1, // Reduce repetition
@@ -237,7 +237,7 @@ class AiService {
         model: 'deepseek-chat',
         messages: messages,
         temperature: this.modelConfig.temperature,
-        max_tokens: Math.min(this.modelConfig.maxTokens, 1200), // Reduced for streaming
+        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1200), // Reduced for streaming
         top_p: 0.8,
         stream: false,
         frequency_penalty: 0.1,

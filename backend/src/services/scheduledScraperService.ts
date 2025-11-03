@@ -12,7 +12,7 @@ interface ScrapingSource {
 class ScheduledScraperService {
   private isRunning: boolean = false;
   private lastRunTime: Date | null = null;
-  private cronJob: cron.ScheduledTask | null = null;
+  private cronJob: any | null = null;
 
   private scrapingSources: ScrapingSource[] = [
     {
@@ -63,7 +63,6 @@ class ScheduledScraperService {
       console.log('⏰ Scheduled FAQ scraping triggered');
       await this.runScheduledScraping();
     }, {
-      scheduled: true,
       timezone: 'Asia/Bahrain' // Bahrain timezone
     });
 

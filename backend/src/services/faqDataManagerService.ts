@@ -40,7 +40,7 @@ class FAQDataManagerService {
       });
 
       // Get additional context from the same category if not enough results
-      let additionalFAQs = [];
+      let additionalFAQs: any[] = [];
       if (relevantFAQs.length < 3 && category) {
         additionalFAQs = await faqDatabaseService.getFAQByCategory(
           category, 
@@ -224,7 +224,7 @@ class FAQDataManagerService {
   async needsCacheUpdate(): Promise<{ needsUpdate: boolean; details: any }> {
     try {
       const sources = ['LMRA_FAQ', 'LMRA_VISA_SERVICES', 'LMRA_WORK_PERMITS', 'LMRA_LABOUR_LAW'];
-      const updateStatus = {};
+      const updateStatus: Record<string, any> = {};
 
       for (const source of sources) {
         const needsUpdate = await faqDatabaseService.needsUpdate(source);
@@ -244,7 +244,7 @@ class FAQDataManagerService {
       console.error('Error checking cache update needs:', error);
       return {
         needsUpdate: true,
-        details: { error: error.message }
+        details: { error: error instanceof Error ? error.message : 'Unknown error' }
       };
     }
   }
@@ -312,7 +312,7 @@ class FAQDataManagerService {
   async getMultilingualStatus(): Promise<any> {
     try {
       const allFAQs = await faqDatabaseService.getAllFAQForContext('en');
-      const languageStats = {};
+      const languageStats: Record<string, number> = {};
       
       // For now, most FAQ data will be in English
       // Future enhancement: Add multilingual scraping

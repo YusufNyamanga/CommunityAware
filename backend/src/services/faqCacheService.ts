@@ -85,7 +85,7 @@ class FAQCacheService {
       });
 
       // Get additional context if needed
-      let additionalFAQs = [];
+      let additionalFAQs: any[] = [];
       if (relevantFAQs.length < 3 && category) {
         additionalFAQs = await faqDatabaseService.getFAQByCategory(
           category, 
