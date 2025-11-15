@@ -26,9 +26,9 @@ const CategoryContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const CategoryButton = styled.button<{ active: boolean }>`
-  background: ${props => props.active ? props.theme.colors.primary : 'transparent'};
-  color: ${props => props.active ? 'white' : props.theme.colors.text};
+const CategoryButton = styled.button<{ $active: boolean }>`
+  background: ${props => props.$active ? props.theme.colors.primary : 'transparent'};
+  color: ${props => props.$active ? 'white' : props.theme.colors.text};
   border: 1px solid ${props => props.theme.colors.primary};
   padding: 8px 16px;
   margin: 4px 8px 4px 0;
@@ -38,7 +38,7 @@ const CategoryButton = styled.button<{ active: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.primaryLight};
+    background: ${props => props.$active ? props.theme.colors.primary : props.theme.colors.primaryLight};
     color: white;
   }
 `;
@@ -118,7 +118,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ onTopicSelect }) =
   const { currentLanguage } = useLanguage();
   const t = useTranslations(currentLanguage);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
   const [entries, setEntries] = useState<KnowledgeBaseEntry[]>([]);
 
   const categories = ['all', ...getKnowledgeCategories()];
@@ -163,7 +163,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ onTopicSelect }) =
             {categories.map(category => (
               <CategoryButton
                 key={category}
-                active={selectedCategory === category}
+                $active={selectedCategory === category}
                 onClick={() => handleCategoryChange(category)}
               >
                 {categoryDisplayNames[category] || category}

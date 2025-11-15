@@ -97,7 +97,7 @@ const AttachButton = styled.button`
   }
 `;
 
-const SendButton = styled.button<{ disabled: boolean }>`
+const SendButton = styled.button<{ $disabled: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,13 +105,13 @@ const SendButton = styled.button<{ disabled: boolean }>`
   height: 50px;
   border: none;
   border-radius: 50%;
-  background: ${({ disabled, theme }) => 
-    disabled 
+  background: ${({ $disabled, theme }) => 
+    $disabled 
       ? theme.colors.textSecondary + '40'
       : `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`
   };
   color: ${({ theme }) => theme.isDark ? '#000' : '#fff'};
-  cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${({ $disabled }) => $disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.3s ease;
   /* Better touch target for mobile */
   min-width: 50px;
@@ -144,13 +144,13 @@ const SendButton = styled.button<{ disabled: boolean }>`
   }
 `;
 
-const CharacterCount = styled.span<{ isNearLimit: boolean }>`
+const CharacterCount = styled.span<{ $isNearLimit: boolean }>`
   position: absolute;
   bottom: -1.5rem;
   right: 0.5rem;
   font-size: 0.75rem;
-  color: ${({ isNearLimit, theme }) => 
-    isNearLimit ? theme.colors.warning : theme.colors.textSecondary
+  color: ${({ $isNearLimit, theme }) => 
+    $isNearLimit ? theme.colors.warning : theme.colors.textSecondary
   };
 `;
 
@@ -223,7 +223,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <Paperclip />
         </AttachButton>
         {message.length > 0 && (
-          <CharacterCount isNearLimit={isNearLimit}>
+          <CharacterCount $isNearLimit={isNearLimit}>
             {message.length}/{maxLength}
           </CharacterCount>
         )}
@@ -231,6 +231,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       
       <SendButton 
         onClick={handleSubmit}
+        $disabled={!canSend}
         disabled={!canSend}
         title={canSend ? t.send : t.typeYourMessage}
       >

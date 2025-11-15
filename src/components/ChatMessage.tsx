@@ -9,12 +9,12 @@ interface ChatMessageProps {
   userQuestion?: string;
 }
 
-const MessageContainer = styled.div<{ isUser: boolean }>`
+const MessageContainer = styled.div<{ $isUser: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
-  justify-content: ${({ isUser }) => isUser ? 'flex-end' : 'flex-start'};
+  justify-content: ${({ $isUser }) => $isUser ? 'flex-end' : 'flex-start'};
   animation: slideInFromBottom 0.4s ease-out;
   
   /* Optimize spacing on mobile */
@@ -35,21 +35,21 @@ const MessageContainer = styled.div<{ isUser: boolean }>`
   }
 `;
 
-const Avatar = styled.div<{ isUser: boolean }>`
+const Avatar = styled.div<{ $isUser: boolean }>`
   width: 40px;
   height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ isUser, theme }) => 
-    isUser 
+  background: ${({ $isUser, theme }) => 
+    $isUser 
       ? `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`
       : `linear-gradient(135deg, ${theme.colors.accent}, ${theme.colors.primary})`
   };
   color: ${({ theme }) => theme.isDark ? '#000' : '#fff'};
   flex-shrink: 0;
-  order: ${({ isUser }) => isUser ? 1 : 0};
+  order: ${({ $isUser }) => $isUser ? 1 : 0};
   
   svg {
     width: 20px;
@@ -68,26 +68,26 @@ const Avatar = styled.div<{ isUser: boolean }>`
   }
 `;
 
-const MessageBubble = styled.div<{ isUser: boolean }>`
+const MessageBubble = styled.div<{ $isUser: boolean }>`
   max-width: 70%;
   padding: 1rem 1.25rem;
-  border-radius: ${({ isUser }) =>
-    isUser 
+  border-radius: ${({ $isUser }) =>
+    $isUser 
       ? '20px 20px 4px 20px'
       : '20px 20px 20px 4px'
   };
-  background-color: ${({ isUser, theme }) =>
-    isUser 
+  background-color: ${({ $isUser, theme }) =>
+    $isUser 
       ? theme.colors.primary
       : theme.colors.surface
   };
-  color: ${({ isUser, theme }) =>
-    isUser 
+  color: ${({ $isUser, theme }) =>
+    $isUser 
       ? (theme.isDark ? '#000' : '#fff')
       : theme.colors.text
   };
-  border: 1px solid ${({ isUser, theme }) =>
-    isUser 
+  border: 1px solid ${({ $isUser, theme }) =>
+    $isUser 
       ? 'transparent'
       : `${theme.colors.primary}20`
   };
@@ -235,14 +235,14 @@ const MessageBubble = styled.div<{ isUser: boolean }>`
   }
 `;
 
-const MessageMeta = styled.div<{ isUser: boolean }>`
+const MessageMeta = styled.div<{ $isUser: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
   font-size: 0.75rem;
   color: ${({ theme }) => theme.colors.textSecondary};
-  justify-content: ${({ isUser }) => isUser ? 'flex-end' : 'flex-start'};
+  justify-content: ${({ $isUser }) => $isUser ? 'flex-end' : 'flex-start'};
   
   svg {
     width: 12px;
@@ -330,17 +330,17 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onPostToCommu
   };
 
   return (
-    <MessageContainer isUser={isUser}>
-      <Avatar isUser={isUser}>
+    <MessageContainer $isUser={isUser}>
+      <Avatar $isUser={isUser}>
         {isUser ? <User /> : <Bot />}
       </Avatar>
       
       <div>
-        <MessageBubble isUser={isUser}>
+        <MessageBubble $isUser={isUser}>
           {isUser ? message.content : cleanAIResponse(message.content)}
         </MessageBubble>
         
-        <MessageMeta isUser={isUser}>
+        <MessageMeta $isUser={isUser}>
           <Clock />
           <span>{formatTimestamp(message.timestamp)}</span>
           {message.category && !isUser && (

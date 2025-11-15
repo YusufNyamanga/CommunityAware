@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
 
-const CookieOverlay = styled.div<{ show: boolean }>`
+const CookieOverlay = styled.div<{ $show: boolean }>`
   position: fixed;
-  bottom: ${props => props.show ? '20px' : '-300px'};
+  bottom: ${props => props.$show ? '20px' : '-300px'};
   left: 20px;
   right: 20px;
   max-width: 500px;
@@ -74,10 +74,10 @@ const CookieActions = styled.div`
   flex-wrap: wrap;
 `;
 
-const CookieButton = styled.button<{ primary?: boolean }>`
-  background: ${props => props.primary ? props.theme.colors.primary : 'transparent'};
-  color: ${props => props.primary ? 'white' : props.theme.colors.text};
-  border: 1px solid ${props => props.primary ? props.theme.colors.primary : props.theme.colors.border};
+const CookieButton = styled.button<{ $primary?: boolean }>`
+  background: ${props => props.$primary ? props.theme.colors.primary : 'transparent'};
+  color: ${props => props.$primary ? 'white' : props.theme.colors.text};
+  border: 1px solid ${props => props.$primary ? props.theme.colors.primary : props.theme.colors.border};
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -86,9 +86,9 @@ const CookieButton = styled.button<{ primary?: boolean }>`
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${props => props.primary ? props.theme.colors.primaryDark : props.theme.colors.primaryLight};
+    background: ${props => props.$primary ? props.theme.colors.primaryDark : props.theme.colors.primaryLight};
     color: white;
-    border-color: ${props => props.primary ? props.theme.colors.primaryDark : props.theme.colors.primaryLight};
+    border-color: ${props => props.$primary ? props.theme.colors.primaryDark : props.theme.colors.primaryLight};
   }
 `;
 
@@ -141,7 +141,7 @@ export const CookieConsent: React.FC = () => {
   if (!showCookies) return null;
 
   return (
-    <CookieOverlay show={showCookies}>
+    <CookieOverlay $show={showCookies}>
       <CookieHeader>
         <CookieTitle>
           🍪 Cookie Preferences
@@ -160,7 +160,7 @@ export const CookieConsent: React.FC = () => {
       </CookieText>
       
       <CookieActions>
-        <CookieButton primary onClick={handleAcceptAll}>
+        <CookieButton $primary onClick={handleAcceptAll}>
           Accept All Cookies
         </CookieButton>
         <CookieButton onClick={handleAcceptEssential}>

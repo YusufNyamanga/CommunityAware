@@ -64,5 +64,81 @@
       "LMRA",
       "employment"
     ]
+  },
+  {
+    "id": "law-1691582400003",
+    "articleNumber": "LMRA-PROC-001",
+    "title": "Absconding and Runaway Cases - Legal Procedures",
+    "content": "There are three distinct types of absconding/runaway cases in Bahrain with specific resolution procedures: 1) LMRA Runaway Case: Applies to domestic or private workers who have absconded. The employer has the right to file this case. Resolution requires the employee to find a new employer, then both the old and new employer must accompany the worker to LMRA to request a grievance process. LMRA will investigate and make a decision within 1-2 months. The previous method where all parties signed a cancellation document together has been discontinued by LMRA. 2) Police Runaway Case: Can only be removed through the public prosecution or court system when a criminal order is issued. The old employer is not required for this process, but the worker must have a new employer ready to provide a work visa. 3) Combined Cases: When employers file cases in both LMRA and Police systems. Resolution requires first removing the LMRA case through the grievance process, then addressing the Police case through appropriate legal channels.",
+    "arabicTitle": "حالات التغيب والهروب - الإجراءات القانونية",
+    "arabicContent": "هناك ثلاثة أنواع متميزة من حالات التغيب/الهروب في البحرين مع إجراءات حل محددة: 1) حالة هروب لدى هيئة تنظيم سوق العمل: تنطبق على العمال المنزليون أو الخاصون الذين هربوا. يحق لصاحب العمل تقديم هذه الحالة. يتطلب الحل أن يجد الموظف صاحب عمل جديد، ثم يجب على صاحبي العمل القديم والجديد مرافقة العامل إلى الهيئة لطلب عملية تظلم. ستقوم الهيئة بالتحقيق واتخاذ قرار خلال 1-2 شهر. تم إيقاف الطريقة السابقة حيث يوقع جميع الأطراف على وثيقة الإلغاء معاً من قبل الهيئة. 2) حالة هروب لدى الشرطة: يمكن إزالتها فقط من خلال النيابة العامة أو نظام المحكمة عند إصدار أمر جنائي. لا يُطلب صاحب العمل القديم لهذه العملية، لكن يجب أن يكون لدى العامل صاحب عمل جديد جاهز لتقديم تأشيرة عمل. 3) الحالات المشتركة: عندما يقدم أصحاب العمل حالات في كلا نظامي الهيئة والشرطة. يتطلب الحل أولاً إزالة حالة الهيئة من خلال عملية التظلم، ثم معالجة حالة الشرطة من خلال القنوات القانونية المناسبة.",
+    "chapter": "Employment Violations and Legal Procedures",
+    "section": "Absconding Cases",
+    "relatedArticles": [
+      "40",
+      "LMRA-PROC-002"
+    ],
+    "lastUpdated": "2024-11-14T00:00:00.000Z",
+    "tags": [
+      "absconding",
+      "runaway",
+      "LMRA",
+      "police",
+      "grievance",
+      "domestic worker",
+      "private worker",
+      "legal procedures"
+    ]
+  },
+  {
+    "id": "law-1691582400004",
+    "articleNumber": "LMRA-IMM-001",
+    "title": "Residence Permit Cancellation and Extension Rules",
+    "content": "Critical residence permit regulations: If a resident permit expires without being cancelled or terminated, the employee must immediately apply for extension after expiry. This process requires a Termination/Cancellation Certificate from LMRA. Employees can independently request this certificate from the LMRA portal if employers are non-cooperative. EXTREMELY IMPORTANT: Under current immigration rules, individuals without valid visas (even if expired only one day) face immediate arrest during inspections and deportation - extensions must never be ignored. If a Resident Permit is cancelled before its expiry date, an automatic 1-month grace period applies from the cancellation date, during which no extension is required.",
+    "arabicTitle": "قواعد إلغاء وتمديد تصريح الإقامة",
+    "arabicContent": "اللوائح الحاسمة لتصاريح الإقامة: إذا انتهى تصريح الإقامة دون إلغائه أو إنهائه، يجب على الموظف التقدم فوراً للتمديد بعد انتهاء الصلاحية. تتطلب هذه العملية شهادة إنهاء/إلغاء من هيئة تنظيم سوق العمل. يمكن للموظفين طلب هذه الشهادة بشكل مستقل من بوابة الهيئة إذا لم يتعاون أصحاب العمل. مهم للغاية: بموجب قواعد الهجرة الحالية، يواجه الأفراد الذين ليس لديهم تأشيرات صالحة (حتى لو انتهت ليوم واحد فقط) الاعتقال الفوري أثناء التفتيش والترحيل - يجب أبداً تجاهل التمديد. إذا تم إلغاء تصريح الإقامة قبل تاريخ انتهاء الصلاحية، تُطبق فترة سماح تلقائية لمدة شهر واحد من تاريخ الإلغاء، وخلالها لا يُطلب أي تمديد.",
+    "chapter": "Immigration and Residence Rules",
+    "section": "Permit Extensions and Cancellations",
+    "relatedArticles": [
+      "40",
+      "LMRA-PROC-001"
+    ],
+    "lastUpdated": "2024-11-14T00:00:00.000Z",
+    "tags": [
+      "residence permit",
+      "extension",
+      "cancellation",
+      "grace period",
+      "LMRA",
+      "visa",
+      "deportation",
+      "inspection",
+      "immigration rules"
+    ]
+  },
+  {
+    "id": "law-1691582400005",
+    "articleNumber": "LMRA-DOM-001",
+    "title": "Domestic Worker Dispute Resolution and Employer Change",
+    "content": "When an employer/sponsor has a dispute with a domestic worker that results in police involvement, and the domestic worker is signed off by an Embassy Representative and handed over to the Embassy by the Police, the worker must change to a new employer/sponsor within 1 month from this date. Failure to secure new employment within this 30-day period will result in the filing of a runaway case against the worker. This regulation ensures proper documentation and legal status maintenance during employer transitions in dispute situations. The Embassy plays a crucial role in facilitating this process and monitoring compliance with the 1-month deadline.",
+    "arabicTitle": "حل نزاعات العمالة المنزلية وتغيير صاحب العمل",
+    "arabicContent": "عندما يكون لدى صاحب العمل/الكفيل نزاع مع عامل منزلي ينتج عنه تدخل الشرطة، ويتم تسجيل خروج العامل المنزلي بواسطة ممثل السفارة وتسليمه إلى السفارة من قبل الشرطة، يجب على العامل تغيير صاحب العمل/الكفيل إلى صاحب عمل جديد خلال شهر واحد من هذا التاريخ. سيؤدي عدم تأمين وظيفة جديدة خلال هذه الفترة البالغة 30 يوماً إلى تقديم حالة هروب ضد العامل. هذا التنظيم يضمن التوثيق السليم والحفاظ على الوضع القانوني أثناء انتقالات صاحب العمل في حالات النزاع. تلعب السفارة دوراً حاسماً في تسهيل هذه العملية ومراقبة الامتثال للموعد النهائي البالغ شهراً واحداً.",
+    "chapter": "Domestic Worker Rights and Disputes",
+    "section": "Dispute Resolution",
+    "relatedArticles": [
+      "LMRA-PROC-001",
+      "40"
+    ],
+    "lastUpdated": "2024-11-14T00:00:00.000Z",
+    "tags": [
+      "domestic worker",
+      "dispute resolution",
+      "employer change",
+      "embassy",
+      "police",
+      "runaway case",
+      "1 month deadline",
+      "sponsor change"
+    ]
   }
 ]

@@ -87,19 +87,19 @@ const ButtonRow = styled.div`
   margin-top: 16px;
 `;
 
-const Button = styled.button<{ primary?: boolean }>`
+const Button = styled.button<{ $primary?: boolean }>`
   padding: 10px 20px;
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${props => props.primary ? props.theme.colors.primary : props.theme.colors.border};
-  background: ${props => props.primary ? props.theme.colors.primary : 'transparent'};
-  color: ${props => props.primary ? 'white' : props.theme.colors.text};
+  border: 1px solid ${props => props.$primary ? props.theme.colors.primary : props.theme.colors.border};
+  background: ${props => props.$primary ? props.theme.colors.primary : 'transparent'};
+  color: ${props => props.$primary ? 'white' : props.theme.colors.text};
 
   &:hover {
-    background: ${props => props.primary ? props.theme.colors.primaryDark : props.theme.colors.primaryLight};
+    background: ${props => props.$primary ? props.theme.colors.primaryDark : props.theme.colors.primaryLight};
     color: white;
   }
 
@@ -223,7 +223,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ onSubmit, onCancel }) => {
           <Button type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" primary disabled={!content.trim()}>
+          <Button type="submit" $primary disabled={!content.trim()}>
             Post Question
           </Button>
         </ButtonRow>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .response {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Frontend Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Backend Connection Test</h2>
+        <p>This test will verify that the frontend can connect to the backend API.</p>
+        
+        <div id="connection-status" class="status info">Ready to test connection</div>
+        
+        <button onclick="testHealthCheck()">Test Health Check</button>
+        <button onclick="testChatEndpoint()">Test Chat Endpoint</button>
+        <button onclick="testAllEndpoints()">Test All Endpoints</button>
+        
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Backend API Service Test</h2>
+        <p>This simulates the actual frontend API service calls.</p>
+        
+        <button onclick="testBackendService()">Test Backend Service</button>
+        <div id="service-results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+        
+        function addResult(message, data = null) {
+            const results = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.innerHTML = `<strong>${message}</strong>`;
+            if (data) {
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'response';
+                responseDiv.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                resultDiv.appendChild(responseDiv);
+            }
+            results.appendChild(resultDiv);
+        }
+        
+        async function testHealthCheck() {
+            updateStatus('connection-status', 'Testing health check...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'ok') {
+                    updateStatus('connection-status', '✅ Health check passed!', 'success');
+                    addResult('Health Check Response:', data);
+                } else {
+                    updateStatus('connection-status', '❌ Health check failed', 'error');
+                    addResult('Health Check Failed:', data);
+                }
+            } catch (error) {
+                updateStatus('connection-status', '❌ Connection failed: ' + error.message, 'error');
+                addResult('Connection Error:', error.message);
+            }
+        }
+        
+        async function testChatEndpoint() {
+            updateStatus('connection-status', 'Testing chat endpoint...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Hello from frontend test',
+                        language: 'en',
+                        category: 'other',
+                        stream: false
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('connection-status', '✅ Chat endpoint working!', 'success');
+                    addResult('Chat Response:', data.content?.substring(0, 200) + '...');
+                } else {
+                    updateStatus('connection-status', '❌ Chat endpoint failed', 'error');
+                    addResult('Chat Error:', data);
+                }
+            } catch (error) {
+                updateStatus('connection-status', '❌ Chat connection failed: ' + error.message, 'error');
+                addResult('Chat Connection Error:', error.message);
+            }
+        }
+        
+        async function testAllEndpoints() {
+            const endpoints = [
+                { url: '/health', method: 'GET' },
+                { url: '/api/faq-status', method: 'GET' },
+                { url: '/api/cache-stats', method: 'GET' },
+                { url: '/api/debug-env', method: 'GET' }
+            ];
+            
+            updateStatus('connection-status', 'Testing all endpoints...', 'info');
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}${endpoint.url}`, {
+                        method: endpoint.method,
+                        headers: endpoint.url.includes('/api/chat') ? {
+                            'Content-Type': 'application/json'
+                        } : {}
+                    });
+                    
+                    const success = response.ok;
+                    const status = success ? '✅' : '❌';
+                    addResult(`${status} ${endpoint.method} ${endpoint.url}: ${response.status} ${response.statusText}`);
+                    
+                } catch (error) {
+                    addResult(`❌ ${endpoint.method} ${endpoint.url}: ${error.message}`);
+                }
+            }
+            
+            updateStatus('connection-status', 'All endpoint tests completed', 'info');
+        }
+        
+        // Simulate the frontend API service
+        async function testBackendService() {
+            const serviceResults = document.getElementById('service-results');
+            serviceResults.innerHTML = '<div class="status info">Testing backend service simulation...</div>';
+            
+            try {
+                // Simulate the backendApiService configuration
+                const baseURL = 'http://localhost:5000';
+                
+                // Test health check (like the frontend does)
+                const healthResponse = await fetch(`${baseURL}/health`);
+                const healthData = await healthResponse.json();
+                
+                // Test chat (like the frontend does)
+                const chatResponse = await fetch(`${baseURL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Test message from frontend simulation',
+                        language: 'en',
+                        category: 'other',
+                        stream: false
+                    })
+                });
+                
+                const chatData = await chatResponse.json();
+                
+                serviceResults.innerHTML = `
+                    <div class="status success">✅ Backend service simulation successful!</div>
+                    <div class="response">
+Health Check: ${healthData.status}
+Chat Response: ${chatData.content?.substring(0, 150)}...
+                    </div>
+                `;
+                
+            } catch (error) {
+                serviceResults.innerHTML = `
+                    <div class="status error">❌ Backend service simulation failed!</div>
+                    <div class="response">Error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        // Auto-run basic tests on page load
+        window.addEventListener('load', async () => {
+            console.log('🧪 Frontend Connection Test Page Loaded');
+            console.log('📡 API Base URL:', API_BASE_URL);
+            
+            // Wait a moment for everything to settle
+            setTimeout(async () => {
+                try {
+                    await testHealthCheck();
+                } catch (error) {
+                    console.error('Auto-test failed:', error);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

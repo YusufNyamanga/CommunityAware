@@ -1,13 +1,13 @@
 [{
   "id": "term-1691582400000",
   "term": "LMRA",
-  "definition": "Labour Market Regulatory Authority - A government body that regulates Bahrain's labor market, issues work permits, and manages the employment of foreign workers.",
+  "definition": "Labour Market Regulatory Authority - A government body that regulates Bahrain's labor market, issues work permits, and manages the employment of foreign workers. Contact: 995 for general inquiries, 999 for emergencies (abuse, fear of harm).",
   "arabicTerm": "هيئة تنظيم سوق العمل",
-  "arabicDefinition": "هيئة حكومية تنظم سوق العمل في البحرين وتصدر تصاريح العمل وتدير توظيف العمال الأجانب",
+  "arabicDefinition": "هيئة حكومية تنظم سوق العمل في البحرين وتصدر تصاريح العمل وتدير توظيف العمال الأجانب. الاتصال: 995 للاستفسارات العامة، 999 للحالات الطارئة (الإساءة، الخوف من الأذى).",
   "category": "Government Bodies",
   "source": "LMRA Official Website",
-  "lastUpdated": "2023-08-09T00:00:00.000Z",
-  "tags": ["government", "employment", "work permit", "labor market"]
+  "lastUpdated": "2024-12-19T00:00:00.000Z",
+  "tags": ["government", "employment", "work permit", "labor market", "contact", "emergency"]
 },
 {
   "id": "term-1691582400001",
@@ -30,4 +30,93 @@
   "source": "Ministry of Industry and Commerce",
   "lastUpdated": "2023-08-09T00:00:00.000Z",
   "tags": ["business", "registration", "commercial", "license"]
-}]
+},
+{
+  "id": "term-1691582400003",
+  "term": "Absconding",
+  "definition": "When an employee, particularly a domestic or private worker, leaves their employment without proper notice or authorization. In Bahrain, there are three types: LMRA runaway cases, Police runaway cases, and combined cases, each with specific resolution procedures.",
+  "arabicTerm": "الهروب من العمل",
+  "arabicDefinition": "عندما يغادر الموظف، وخاصة العامل المنزلي أو الخاص، عمله دون إشعار أو تصريح مناسب. في البحرين، هناك ثلاثة أنواع: حالات الهروب لدى هيئة تنظيم سوق العمل، وحالات الهروب لدى الشرطة، والحالات المشتركة، ولكل منها إجراءات حل محددة.",
+  "category": "Employment Violations",
+  "source": "LMRA Guidelines & Legal Procedures",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["absconding", "runaway", "employment violation", "LMRA", "police", "grievance"]
+},
+{
+  "id": "term-1691582400004",
+  "term": "Grievance Process",
+  "definition": "A formal procedure for resolving disputes, particularly used in LMRA runaway cases where both old and new employers must accompany the worker to LMRA to request investigation and resolution of the case.",
+  "arabicTerm": "عملية التظلم",
+  "arabicDefinition": "إجراء رسمي لحل النزاعات، يُستخدم بشكل خاص في حالات الهروب لدى هيئة تنظيم سوق العمل حيث يجب على صاحبي العمل القديم والجديد مرافقة العامل إلى الهيئة لطلب التحقيق وحل القضية.",
+  "category": "Legal Procedures",
+  "source": "LMRA Guidelines",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["grievance", "dispute resolution", "LMRA", "legal procedure", "runaway"]
+},
+{
+  "id": "term-1691582400005",
+  "term": "Residence Permit Extension",
+  "definition": "The process of extending a residence permit after expiry. Requires a Termination/Cancellation Certificate from LMRA. Critical: Failure to extend immediately after expiry can result in arrest during inspections and deportation, even if visa expired only one day prior.",
+  "arabicTerm": "تمديد تصريح الإقامة",
+  "arabicDefinition": "عملية تمديد تصريح الإقامة بعد انتهاء الصلاحية. تتطلب شهادة إنهاء/إلغاء من هيئة تنظيم سوق العمل. الأهمية: عدم التمديد فوراً بعد الانتهاء يمكن أن يؤدي إلى الاعتقال أثناء التفتيش والترحيل، حتى لو انتهت التأشيرة قبل يوم واحد فقط.",
+  "category": "Immigration Procedures",
+  "source": "LMRA Guidelines & Immigration Rules",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["residence permit", "extension", "LMRA", "deportation", "inspection", "visa expiry"]
+},
+{
+  "id": "term-1691582400006",
+  "term": "Grace Period",
+  "definition": "An automatic 1-month period granted when a residence permit is cancelled before its expiry date. During this period, no extension is required and the individual can remain legally in Bahrain.",
+  "arabicTerm": "فترة السماح",
+  "arabicDefinition": "فترة شهر واحد تلقائية تُمنح عند إلغاء تصريح الإقامة قبل تاريخ انتهاء الصلاحية. خلال هذه الفترة، لا يُطلب أي تمديد ويمكن للفرد البقاء بشكل قانوني في البحرين.",
+  "category": "Immigration Rules",
+  "source": "LMRA Guidelines",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["grace period", "residence permit", "cancellation", "legal stay"]
+},
+{
+  "id": "term-1691582400007",
+  "term": "Termination/Cancellation Certificate",
+  "definition": "An official document from LMRA required for residence permit extension when the permit has expired without being formally cancelled. Employees can obtain this certificate independently through the LMRA portal if employers are non-cooperative.",
+  "arabicTerm": "شهادة الإنهاء/الإلغاء",
+  "arabicDefinition": "وثيقة رسمية من هيئة تنظيم سوق العمل مطلوبة لتمديد تصريح الإقامة عندما ينتهي التصريح دون إلغاء رسمي. يمكن للموظفين الحصول على هذه الشهادة بشكل مستقل من خلال بوابة الهيئة إذا لم يتعاون أصحاب العمل.",
+  "category": "Documentation",
+  "source": "LMRA Portal Procedures",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["certificate", "LMRA", "residence permit", "documentation", "non-cooperative employer"]
+  },
+  {
+    "id": "term-1691582400008",
+    "term": "Domestic Worker Dispute",
+    "definition": "A conflict between an employer/sponsor and a domestic worker that escalates to police involvement. When resolved through Embassy intervention, the worker must find new employment within 1 month to avoid runaway case filing.",
+    "arabicTerm": "نزاع العامل المنزلي",
+    "arabicDefinition": "صراع بين صاحب العمل/الكفيل والعامل المنزلي يتصاعد إلى تدخل الشرطة. عند الحل من خلال تدخل السفارة، يجب على العامل العثور على وظيفة جديدة خلال شهر واحد لتجنب تقديم حالة هروب.",
+    "category": "Employment Disputes",
+    "source": "LMRA Guidelines & Embassy Procedures",
+    "lastUpdated": "2024-11-14T00:00:00.000Z",
+    "tags": ["domestic worker", "dispute", "embassy", "police", "1 month deadline", "runaway case"]
+  },
+  {
+    "id": "term-1691582400009",
+    "term": "Embassy Handover",
+    "definition": "The formal process where police transfer custody of a domestic worker involved in a dispute to their Embassy Representative. This triggers the 1-month deadline for the worker to secure new employment.",
+    "arabicTerm": "التسليم للسفارة",
+    "arabicDefinition": "العملية الرسمية حيث تقوم الشرطة بتحويل حراسة العامل المنزلي المتورط في نزاع إلى ممثل سفارته. هذا يؤدي إلى بدء الموعد النهائي البالغ شهر واحد للعامل لتأمين وظيفة جديدة.",
+    "category": "Legal Procedures",
+    "source": "Embassy & Police Protocols",
+    "lastUpdated": "2024-11-14T00:00:00.000Z",
+    "tags": ["embassy handover", "police transfer", "custody", "1 month deadline", "dispute resolution"]
+  },
+  {
+    "id": "term-1691582400010",
+    "term": "Sponsor Change Deadline",
+    "definition": "The mandatory 1-month (30-day) period following Embassy handover in domestic worker disputes. Workers must secure new employer/sponsor within this timeframe or face runaway case filing.",
+    "arabicTerm": "الموعد النهائي لتغيير الكفيل",
+    "arabicDefinition": "الفترة الإلزامية البالغة شهر واحد (30 يوماً) التي تلي التسليم للسفارة في نزاعات العمالة المنزلية. يجب على العمال تأمين صاحب عمل/كفيل جديد خلال هذا الإطار الزمني أو مواجهة تقديم حالة هروب.",
+    "category": "Immigration Deadlines",
+    "source": "LMRA Regulations",
+    "lastUpdated": "2024-11-14T00:00:00.000Z",
+    "tags": ["sponsor change", "1 month deadline", "embassy handover", "runaway case", "time limit"]
+  }
+]

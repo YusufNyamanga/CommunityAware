@@ -133,4 +133,67 @@ export const aiController = {
       });
     }
   }
+  ,
+  async handleChatStreamGet(req: Request, res: Response) {
+    try {
+      const messageParam = req.query.message;
+      if (!messageParam || typeof messageParam !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+      const languageParam = (req.query.language as Language) || 'en';
+      const categoryParam = req.query.category as LegalCategory | undefined;
+      const historyParam = req.query.history as string | undefined;
+
+      const supportedLanguages = ['en', 'ar', 'zh', 'zh-tw', 'es', 'fr', 'pt', 'ru', 'hi', 'th', 'id', 'ms', 'tr', 'ur', 'bn', 'ta', 'te', 'ml', 'pa', 'ne', 'am', 'sw', 'yo', 'lg', 'tl'];
+      if (languageParam && !supportedLanguages.includes(languageParam)) {
+        return res.status(400).json({ error: `Unsupported language` });
+      }
+
+      const queryCategory = categoryParam || aiService.categorizeQuery(messageParam);
+
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      let filteredHistory: Array<{ role: 'user' | 'assistant', content: string }> = [];
+      if (historyParam) {
+        try {
+          const parsed = JSON.parse(historyParam);
+          if (Array.isArray(parsed)) {
+            filteredHistory = parsed
+              .filter((msg: any) => msg && msg.role !== 'system')
+              .map((msg: any) => ({
+                role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+                content: msg.content
+              }))
+              .slice(-10);
+          }
+        } catch {}
+      }
+
+      try {
+        for await (const chunk of aiService.streamMessage(
+          messageParam,
+          filteredHistory,
+          queryCategory,
+          languageParam
+        )) {
+          if (chunk.error) {
+            res.write(`data: ${JSON.stringify({ error: chunk.error })}\n\n`);
+            break;
+          }
+          res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        }
+        res.write('data: [DONE]\n\n');
+        res.end();
+      } catch (error) {
+        res.write(`data: ${JSON.stringify({ error: 'Streaming error' })}\n\n`);
+        res.end();
+      }
+    } catch (error) {
+      console.error('Chat Stream GET Error:', error);
+      res.status(500).json({ error: 'An error occurred while processing your request' });
+    }
+  }
 };

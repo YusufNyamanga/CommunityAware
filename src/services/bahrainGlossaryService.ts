@@ -106,7 +106,7 @@ class BahrainGlossaryService {
     {
       term: 'Department of Labor',
       bahrainEquivalent: 'LMRA (Labour Market Regulatory Authority)',
-      definition: 'Government body regulating labour market and work permits in Bahrain',
+      definition: 'Government body regulating labour market and work permits in Bahrain. Contact: 995 for general inquiries, 999 for emergencies (abuse, fear of harm).',
       category: 'legal'
     },
     {

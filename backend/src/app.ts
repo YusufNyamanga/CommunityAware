@@ -21,7 +21,7 @@ const port = process.env.PORT || 5000;
 
 // CORS configuration - allow frontend connections
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.100.27:3000'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://192.168.100.27:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -307,6 +307,7 @@ app.get('/api/test-ai', validateToken, aiController.testConnection);
 
 // Chat routes (temporarily without auth for testing - should add auth in production)
 app.post('/api/chat', aiController.handleChat);
+app.get('/api/chat/stream', aiController.handleChatStreamGet);
 
 // Protected routes (for future authenticated features)
 // app.use('/api/chat', validateToken, checkUserRateLimit, validateRequestToken, aiController.handleChat);

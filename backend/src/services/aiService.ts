@@ -30,10 +30,14 @@ class AiService {
   private readonly BANNED_WORDS = ['hack', 'exploit', 'crack', 'illegal', 'fraud'];
   private readonly DEEPSEEK_API_URL: string;
   private readonly DEEPSEEK_API_KEY: string;
+  private readonly MOONSHOT_API_URL: string;
+  private readonly MOONSHOT_API_KEY: string;
 
   constructor() {
     this.DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
     this.DEEPSEEK_API_URL = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/chat/completions';
+    this.MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || 'sk-g2OEmIysO4BJBSy5wE0lCr2qebhNPwLDRUHt90fKIpAnoRZB';
+    this.MOONSHOT_API_URL = process.env.MOONSHOT_API_URL || 'https://api.moonshot.cn/v1/chat/completions';
     
     if (!this.DEEPSEEK_API_KEY) {
       console.warn('⚠️ DeepSeek API KEY NOT FOUND! Check your backend .env file.');
@@ -93,10 +97,45 @@ class AiService {
         return { error: validation.reason };
       }
 
-      if (!this.DEEPSEEK_API_KEY) {
-        return { error: 'DeepSeek API key is not configured' };
+      // Check available services
+      const deepSeekAvailable = this.DEEPSEEK_API_KEY && this.DEEPSEEK_API_KEY.length > 0;
+      const moonshotAvailable = this.MOONSHOT_API_KEY && this.MOONSHOT_API_KEY.length > 0;
+
+      if (!deepSeekAvailable && !moonshotAvailable) {
+        return { error: 'No AI service API keys are configured (DeepSeek or Moonshot)' };
       }
 
+      // Try DeepSeek first if available
+      if (deepSeekAvailable) {
+        try {
+          return await this.sendMessageWithDeepSeek(message, history, category, language);
+        } catch (error) {
+          console.warn('DeepSeek failed, falling back to Moonshot:', error);
+          if (!moonshotAvailable) {
+            return { error: 'DeepSeek failed and Moonshot is not available' };
+          }
+        }
+      }
+
+      // Fallback to Moonshot
+      return await this.sendMessageWithMoonshot(message, history, category, language);
+
+    } catch (error) {
+      console.error('AI Service Error:', error);
+      return { 
+        error: error instanceof Error ? error.message : 'Failed to process message' 
+      };
+    }
+  }
+
+  // Send message with DeepSeek API
+  private async sendMessageWithDeepSeek(
+    message: string,
+    history: Array<{ role: 'user' | 'assistant', content: string }> = [],
+    category: LegalCategory = 'general-legal',
+    language: Language = 'en'
+  ): Promise<MessageResponse> {
+    try {
       const systemMessage = this.getSystemPrompt(category, language);
 
       console.log('Query:', message);
@@ -108,11 +147,10 @@ class AiService {
         query: message,
         category,
         language,
-        maxItems: 6, // Reduced for faster processing
-        maxLength: 1200 // Reduced for faster processing
+        maxItems: 6,
+        maxLength: 1200
       });
       
-      // Start FAQ context retrieval (don't await yet for parallel processing)
       const faqContext = await faqContextPromise;
       
       const responseTime = faqContext.metadata?.responseTime || 0;
@@ -141,17 +179,17 @@ class AiService {
         model: 'deepseek-chat',
         messages: messages,
         temperature: this.modelConfig.temperature,
-        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1500), // Reduce for faster response
-        top_p: 0.8, // Slightly more focused for speed
+        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1500),
+        top_p: 0.8,
         stream: false,
-        frequency_penalty: 0.1, // Reduce repetition
+        frequency_penalty: 0.1,
         presence_penalty: 0.1
       }, {
         headers: {
           'Authorization': `Bearer ${this.DEEPSEEK_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        timeout: 20000 // Reduced timeout for faster failure detection
+        timeout: 20000
       });
 
       if (response.data?.choices?.[0]?.message?.content) {
@@ -180,8 +218,104 @@ class AiService {
           error: `DeepSeek API Error (${status} ${statusText}): ${data?.error?.message || error.message}` 
         };
       }
+      throw error; // Re-throw to trigger fallback
+    }
+  }
+
+  // Send message with Moonshot Kimi-K2-0905 API
+  private async sendMessageWithMoonshot(
+    message: string,
+    history: Array<{ role: 'user' | 'assistant', content: string }> = [],
+    category: LegalCategory = 'general-legal',
+    language: Language = 'en'
+  ): Promise<MessageResponse> {
+    try {
+      console.log('Using Moonshot Kimi-K2-0905 as fallback...');
+      
+      const systemMessage = this.getSystemPrompt(category, language);
+
+      console.log('Query:', message);
+      console.log('Category:', category);
+      console.log('Language:', language);
+
+      // Get local FAQ context with performance optimization
+      const faqContextPromise = faqCacheService.getFAQContextFast({
+        query: message,
+        category,
+        language,
+        maxItems: 6,
+        maxLength: 1200
+      });
+      
+      const faqContext = await faqContextPromise;
+      
+      const responseTime = faqContext.metadata?.responseTime || 0;
+      const fromCache = faqContext.metadata?.fromCache || false;
+      
+      console.log(`⚡ FAQ context: ${faqContext.relevantFAQs.length > 0 ? `Found ${faqContext.relevantFAQs.length} items (${fromCache ? 'cache hit' : 'database'}, ${responseTime}ms)` : 'No data found'}`);
+      
+      // Enhanced system message with optimized FAQ data
+      const enhancedSystemMessage = faqContext.contextText 
+        ? `${systemMessage}\n\nOFFICIAL FAQ CONTEXT (${fromCache ? 'cached' : 'fresh'}):\n${faqContext.contextText}\n\nUse this official information when relevant.`
+        : systemMessage;
+
+      // Prepare messages for Moonshot API
+      const messages = [
+        { role: 'system', content: enhancedSystemMessage },
+        ...history.slice(-10).map(msg => ({ 
+          role: msg.role, 
+          content: msg.content 
+        })),
+        { role: 'user', content: message }
+      ];
+
+      console.log('Making request to Moonshot API...');
+      
+      const response = await axios.post(this.MOONSHOT_API_URL, {
+        model: 'kimi-k2-0905',
+        messages: messages,
+        temperature: this.modelConfig.temperature,
+        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1500),
+        top_p: 0.8,
+        stream: false,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1
+      }, {
+        headers: {
+          'Authorization': `Bearer ${this.MOONSHOT_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 20000
+      });
+
+      if (response.data?.choices?.[0]?.message?.content) {
+        const cleanContent = this.cleanResponse(response.data.choices[0].message.content);
+        return { content: cleanContent };
+      } else {
+        console.error('Unexpected Moonshot API response:', response.data);
+        return { error: 'Unexpected response format from Moonshot API' };
+      }
+    } catch (error) {
+      console.error('Moonshot API Error:', error);
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const statusText = error.response?.statusText;
+        const data = error.response?.data;
+        
+        if (status === 401) {
+          return { error: 'Authentication failed. Please check Moonshot API key configuration.' };
+        } else if (status === 429) {
+          return { error: 'Rate limit exceeded. Please wait a moment and try again.' };
+        } else if (status && status >= 500) {
+          return { error: 'Server error occurred. Please try again in a moment.' };
+        }
+        
+        return { 
+          error: `Moonshot API Error (${status} ${statusText}): ${data?.error?.message || error.message}` 
+        };
+      }
       return { 
-        error: error instanceof Error ? error.message : 'Failed to get response from DeepSeek service' 
+        error: error instanceof Error ? error.message : 'Failed to get response from Moonshot service' 
       };
     }
   }
@@ -199,10 +333,47 @@ class AiService {
         return;
       }
 
-      if (!this.DEEPSEEK_API_KEY) {
-        yield { error: 'DeepSeek API key is not configured' };
+      const deepSeekAvailable = this.DEEPSEEK_API_KEY && this.DEEPSEEK_API_KEY.length > 0;
+      const moonshotAvailable = this.MOONSHOT_API_KEY && this.MOONSHOT_API_KEY.length > 0;
+
+      if (!deepSeekAvailable && !moonshotAvailable) {
+        yield { error: 'No AI service API keys are configured (DeepSeek or Moonshot)' };
         return;
       }
+
+      // Try DeepSeek first if available
+      if (deepSeekAvailable) {
+        try {
+          yield* this.streamMessageWithDeepSeek(message, history, category, language);
+          return;
+        } catch (error) {
+          console.warn('DeepSeek failed, falling back to Moonshot:', error);
+          if (!moonshotAvailable) {
+            yield { error: 'DeepSeek failed and Moonshot is not available' };
+            return;
+          }
+        }
+      }
+
+      // Fallback to Moonshot
+      yield* this.streamMessageWithMoonshot(message, history, category, language);
+
+    } catch (error) {
+      console.error('AI Service Streaming Error:', error);
+      yield { 
+        error: error instanceof Error ? error.message : 'Failed to stream message' 
+      };
+    }
+  }
+
+  // Stream message with DeepSeek API
+  private async *streamMessageWithDeepSeek(
+    message: string,
+    history: Array<{ role: 'user' | 'assistant', content: string }> = [],
+    category: LegalCategory = 'general-legal',
+    language: Language = 'en'
+  ): AsyncGenerator<MessageResponse> {
+    try {
 
       const systemMessage = this.getSystemPrompt(category, language);
 
@@ -276,6 +447,92 @@ class AiService {
       } else {
         yield { 
           error: error instanceof Error ? error.message : 'Failed to stream from DeepSeek service' 
+        };
+      }
+    }
+  }
+
+  // Stream message with Moonshot Kimi-K2-0905 API
+  private async *streamMessageWithMoonshot(
+    message: string,
+    history: Array<{ role: 'user' | 'assistant', content: string }> = [],
+    category: LegalCategory = 'general-legal',
+    language: Language = 'en'
+  ): AsyncGenerator<MessageResponse> {
+    try {
+      console.log('Using Moonshot Kimi-K2-0905 as fallback...');
+
+      const systemMessage = this.getSystemPrompt(category, language);
+
+      // Get local FAQ context for streaming (optimized)
+      const faqContext = await faqCacheService.getFAQContextFast({
+        query: message,
+        category,
+        language,
+        maxItems: 5,
+        maxLength: 1000
+      });
+      
+      const enhancedSystemMessage = faqContext.contextText 
+        ? `${systemMessage}\n\nOFFICIAL FAQ CONTEXT:\n${faqContext.contextText}\n\nUse this information when relevant.`
+        : systemMessage;
+
+      // Prepare messages for Moonshot API
+      const messages = [
+        { role: 'system', content: enhancedSystemMessage },
+        ...history.slice(-10).map(msg => ({ 
+          role: msg.role, 
+          content: msg.content 
+        })),
+        { role: 'user', content: message }
+      ];
+
+      console.log('Starting stream request to Moonshot API...');
+      
+      // Use non-streaming approach and simulate streaming for Moonshot
+      const response = await axios.post(this.MOONSHOT_API_URL, {
+        model: 'kimi-k2-0905',
+        messages: messages,
+        temperature: this.modelConfig.temperature,
+        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1200),
+        top_p: 0.8,
+        stream: false,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1
+      }, {
+        headers: {
+          'Authorization': `Bearer ${this.MOONSHOT_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 18000
+      });
+
+      if (response.data?.choices?.[0]?.message?.content) {
+        const content = this.cleanResponse(response.data.choices[0].message.content);
+        // Simulate streaming by yielding chunks
+        const words = content.split(' ');
+        for (let i = 0; i < words.length; i++) {
+          const chunk = words[i] + (i < words.length - 1 ? ' ' : '');
+          yield { content: chunk };
+          // Small delay to simulate streaming
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+      } else {
+        yield { error: 'Unexpected response format from Moonshot API' };
+      }
+
+    } catch (error) {
+      console.error('Moonshot Streaming Error:', error);
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const statusText = error.response?.statusText;
+        const data = error.response?.data;
+        yield { 
+          error: `Moonshot Streaming Error (${status} ${statusText}): ${data?.error?.message || error.message}` 
+        };
+      } else {
+        yield { 
+          error: error instanceof Error ? error.message : 'Failed to stream from Moonshot service' 
         };
       }
     }
@@ -413,6 +670,11 @@ class AiService {
     - Sijilat registration processes
     - Grace period extensions
     - Legal compliance requirements
+
+    IMPORTANT LMRA CONTACT INFORMATION:
+    - General inquiries: Call 995
+    - Emergencies (abuse, fear of harm): Call 999
+    - Employees and domestic workers can contact LMRA directly for assistance
 
     Always provide accurate, up-to-date information based on Bahrain law and regulations.
     If you're unsure about specific legal details, recommend consulting with official authorities or legal professionals.

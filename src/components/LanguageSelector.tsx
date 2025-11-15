@@ -4,10 +4,10 @@ import { Globe, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../locales';
 
-const SelectorContainer = styled.div<{ isRTL: boolean }>`
+const SelectorContainer = styled.div<{ $isRTL: boolean }>`
   position: relative;
   display: inline-block;
-  direction: ltr; /* Keep container direction LTR for consistent dropdown positioning */
+  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
 `;
 
 const SelectorButton = styled.button`
@@ -39,14 +39,14 @@ const FlagText = styled.span`
   margin-right: 4px;
 `;
 
-const DropdownOverlay = styled.div<{ show: boolean }>`
+const DropdownOverlay = styled.div<{ $show: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 99998;
-  display: ${props => props.show ? 'block' : 'none'};
+  display: ${props => props.$show ? 'block' : 'none'};
   background: rgba(0, 0, 0, 0.3);
   
   /* Enhanced mobile overlay */
@@ -56,10 +56,10 @@ const DropdownOverlay = styled.div<{ show: boolean }>`
   }
 `;
 
-const DropdownMenu = styled.div<{ show: boolean; isRTL: boolean }>`
+const DropdownMenu = styled.div<{ $show: boolean; $isRTL: boolean }>`
   position: absolute;
   top: 100%;
-  right: 0;
+  ${props => props.$isRTL ? 'left: 0;' : 'right: 0;'}
   width: 280px;
   max-width: calc(100vw - 20px);
   max-height: 300px;
@@ -69,9 +69,9 @@ const DropdownMenu = styled.div<{ show: boolean; isRTL: boolean }>`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 99999; /* Much higher z-index to ensure it's above everything */
   overflow-y: auto;
-  display: ${props => props.show ? 'block' : 'none'};
+  display: ${props => props.$show ? 'block' : 'none'};
   margin-top: 4px;
-  direction: ltr; /* Keep dropdown internal layout LTR for consistent behavior */
+  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
   
   /* Mobile-specific positioning fixes */
   @media (max-width: 768px) {
@@ -82,7 +82,7 @@ const DropdownMenu = styled.div<{ show: boolean; isRTL: boolean }>`
     width: auto;
     max-width: none;
     bottom: 20px;
-    transform: translateY(${props => props.show ? '0' : '100%'});
+    transform: translateY(${props => props.$show ? '0' : '100%'});
     transition: transform 0.3s ease;
     z-index: 999999; /* Even higher for mobile */
   }
@@ -125,18 +125,18 @@ const SearchInput = styled.input`
   }
 `;
 
-const LanguageOption = styled.button<{ isSelected: boolean; isRTL: boolean }>`
+const LanguageOption = styled.button<{ $isSelected: boolean; $isRTL: boolean }>`
   width: 100%;
   padding: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
   border: none;
-  background: ${props => props.isSelected ? props.theme.colors.primary + '20' : 'transparent'};
+  background: ${props => props.$isSelected ? props.theme.colors.primary + '20' : 'transparent'};
   cursor: pointer;
   transition: background-color 0.2s ease;
-  text-align: ${props => props.isRTL ? 'right' : 'left'};
-  direction: ${props => props.isRTL ? 'rtl' : 'ltr'};
+  text-align: ${props => props.$isRTL ? 'right' : 'left'};
+  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary}10;
@@ -152,10 +152,10 @@ const LanguageFlag = styled.span`
   min-width: 24px;
 `;
 
-const LanguageInfo = styled.div<{ isRTL: boolean }>`
+const LanguageInfo = styled.div<{ $isRTL: boolean }>`
   flex: 1;
-  text-align: ${props => props.isRTL ? 'right' : 'left'};
-  direction: ${props => props.isRTL ? 'rtl' : 'ltr'};
+  text-align: ${props => props.$isRTL ? 'right' : 'left'};
+  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
 `;
 
 const LanguageName = styled.div`
@@ -225,7 +225,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   }, [isOpen]);
 
   return (
-    <SelectorContainer ref={selectorRef} isRTL={isRTL}>
+    <SelectorContainer ref={selectorRef} $isRTL={isRTL}>
       <SelectorButton onClick={handleToggle} title="Select Language">
         <Globe />
         {!compact && showLabel && <span>{currentLangInfo.nativeName}</span>}
@@ -235,9 +235,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         }} />
       </SelectorButton>
 
-      <DropdownOverlay show={isOpen} onClick={() => setIsOpen(false)} />
-      
-      <DropdownMenu show={isOpen} isRTL={isRTL}>
+      <DropdownOverlay $show={isOpen} onClick={() => setIsOpen(false)} />
+      <DropdownMenu $show={isOpen} $isRTL={isRTL}>
         <SearchInput
           type="text"
           placeholder="Search languages..."
@@ -249,11 +248,11 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         {filteredLanguages.map(([code, info]) => (
           <LanguageOption
             key={code}
-            isSelected={code === currentLanguage}
-            isRTL={isRTL}
+            $isSelected={code === currentLanguage}
+                $isRTL={isRTL}
             onClick={() => handleLanguageSelect(code as SupportedLanguage)}
           >
-            <LanguageInfo isRTL={isRTL}>
+            <LanguageInfo $isRTL={isRTL}>
               <LanguageName>{info.name}</LanguageName>
               <NativeName>{info.nativeName}</NativeName>
             </LanguageInfo>

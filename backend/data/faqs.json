@@ -30,4 +30,48 @@
   "source": "LMRA Guidelines",
   "lastUpdated": "2023-08-09T00:00:00.000Z",
   "tags": ["work permit", "renewal", "LMRA", "employment"]
+},
+{
+  "id": "faq-1691582400003",
+  "question": "What are the different types of absconding/runaway cases in Bahrain and how can they be resolved?",
+  "answer": "There are three types of absconding/runaway cases in Bahrain: 1) LMRA Runaway Case: For domestic or private workers who ran away. The employer can file this case. Resolution: The employee must find a new employer and both employers must go to LMRA to request a grievance process. LMRA will investigate and make a decision (takes 1-2 months). The old method of all parties signing a cancellation document together has been discontinued. 2) Police Runaway Case: Can only be removed through public prosecution or court when a criminal order is issued. The old employer is not needed, but the worker must have a new employer ready to provide a work visa. 3) Combined Cases: When employers file cases in both LMRA and Police. Resolution: First remove the LMRA case using the grievance process, then remove the Police case through legal channels.",
+  "arabicQuestion": "ما هي أنواع حالات التغيب/الهروب في البحرين وكيف يمكن حلها؟",
+  "arabicAnswer": "هناك ثلاثة أنواع من حالات التغيب/الهروب في البحرين: 1) حالة هروب لدى هيئة تنظيم سوق العمل: للعمال المنزليون أو الخاصون الذين هربوا. يمكن للصاحب العمل تقديم هذه الحالة. الحل: يجب على الموظف العثور على صاحب عمل جديد ويجب على كلا صاحبي العمل الذهاب إلى الهيئة لطلب عملية تظلم. ستقوم الهيئة بالتحقيق واتخاذ قرار (يستغرق 1-2 شهراً). تم إيقاف الطريقة القديمة لتوقيع جميع الأطراف على وثيقة الإلغاء معاً. 2) حالة هروب لدى الشرطة: يمكن إزالتها فقط من خلال النيابة العامة أو المحكمة عند إصدار أمر جنائي. لا يُحتاج إلى صاحب العمل القديم، لكن يجب أن يكون لدى العامل صاحب عمل جديد جاهز لتقديم تأشيرة عمل. 3) حالات مشتركة: عندما يقدم أصحاب العمل حالات في كل من الهيئة والشرطة. الحل: أولاً أزل حالة الهيئة باستخدام عملية التظلم، ثم أزل حالة الشرطة من خلال القنوات القانونية.",
+  "category": "Work Permits",
+  "source": "LMRA Guidelines & Legal Procedures",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["absconding", "runaway", "LMRA", "police", "work permit", "grievance", "domestic worker", "private worker"]
+},
+{
+  "id": "faq-1691582400004",
+  "question": "What are the rules for residence permit cancellation and extension in Bahrain?",
+  "answer": "If a resident permit expires without being cancelled or terminated, the employee must do extension immediately after expiry. This requires a Termination/Cancellation Certificate from LMRA. Employees can request this certificate themselves from the LMRA portal if the employer is not cooperating. It is crucial to do the extension because with current rules, if you do not have a valid visa (even if it expired yesterday), you will be arrested during an inspection and deported - never ignore doing extension. If a Resident Permit is cancelled before expiry, it gives you an automatic 1-month grace period from the date of cancellation, and during this period you don't need to do an extension.",
+  "arabicQuestion": "ما هي قواعد إلغاء وتمديد تصريح الإقامة في البحرين؟",
+  "arabicAnswer": "إذا انتهى تصريح الإقامة دون إلغائه أو إنهائه، يجب على الموظف القيام بالتمديد فوراً بعد انتهاء الصلاحية. يتطلب هذا شهادة إنهاء/إلغاء من هيئة تنظيم سوق العمل. يمكن للموظفين طلب هذه الشهادة بأنفسهم من بوابة الهيئة إذا لم يتعاون صاحب العمل. من الضروري القيام بالتمديد لأنه مع القواعد الحالية، إذا لم يكن لديك تأشيرة صالحة (حتى لو انتهت بالأمس)، سيتم اعتقالك أثناء التفتيش وترحيلك - لا تتجاهل أبداً القيام بالتمديد. إذا تم إلغاء تصريح الإقامة قبل انتهاء الصلاحية، فإنه يمنحك فترة سماح تلقائية لمدة شهر واحد من تاريخ الإلغاء، وخلال هذه الفترة لا تحتاج إلى القيام بالتمديد.",
+  "category": "Residence Permits",
+  "source": "LMRA Guidelines & Immigration Rules",
+  "lastUpdated": "2024-11-14T00:00:00.000Z",
+  "tags": ["residence permit", "extension", "cancellation", "LMRA", "grace period", "visa", "deportation", "inspection"]
+},
+{
+  "id": "faq-1691582400005",
+  "question": "What happens when an employer/sponsor has a dispute with a domestic worker that ends up at the police?",
+  "answer": "When an employer/sponsor has a dispute with a domestic worker that ends up at the police, and the domestic worker is signed off from the police by an Embassy Representative and handed over to the Embassy by the Police, the domestic worker must change to a new employer/sponsor within 1 month from this date. Otherwise, a runaway case will be filed against them.",
+  "arabicQuestion": "ماذا يحدث عندما يكون هناك نزاع بين صاحب العمل/الكفيل وعاملة منزلية ينتهي في الشرطة؟",
+  "arabicAnswer": "عندما يكون هناك نزاع بين صاحب العمل/الكفيل وعاملة منزلية ينتهي في الشرطة، وتتم تسوية وضع العاملة المنزلية من الشرطة من قبل ممثل السفارة وتسليمها إلى السفارة من قبل الشرطة، يجب على العاملة المنزلية التغيير إلى صاحب عمل/كفيل جديد خلال شهر واحد من هذا التاريخ. وإلا سيتم تقديم حالة هروب ضدها.",
+  "category": "Domestic Workers",
+  "source": "Police & Embassy Procedures",
+  "lastUpdated": "2024-11-15T00:00:00.000Z",
+  "tags": ["domestic worker", "dispute", "police", "embassy", "runaway", "employer change", "1 month deadline"]
+},
+{
+  "id": "faq-1691582400006",
+  "question": "What are the LMRA contact numbers for employees and domestic workers?",
+  "answer": "LMRA (Labour Market Regulatory Authority) can be contacted at: 995 for general inquiries and assistance, 999 for emergencies including abuse, fear of being harmed, or urgent safety concerns. These numbers are available for all employees and domestic workers who need to contact LMRA directly.",
+  "arabicQuestion": "ما هي أرقام الاتصال بهيئة تنظيم سوق العمل للموظفين والعمال المنزليون؟",
+  "arabicAnswer": "يمكن الاتصال بهيئة تنظيم سوق العمل على: 995 للاستفسارات العامة والمساعدة، 999 للحالات الطارئة بما في ذلك الإساءة أو الخوف من الأذى أو المخاوف الأمنية العاجلة. هذه الأرقام متاحة لجميع الموظفين والعمال المنزليين الذين يحتاجون إلى الاتصال بالهيئة مباشرة.",
+  "category": "Contact Information",
+  "source": "LMRA Official Contact Information",
+  "lastUpdated": "2024-12-19T00:00:00.000Z",
+  "tags": ["LMRA", "contact", "phone", "emergency", "employees", "domestic workers", "995", "999"]
 }]

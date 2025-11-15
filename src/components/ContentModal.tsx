@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslations } from '../locales/translations';
 
-const ModalOverlay = styled.div<{ show: boolean }>`
+const ModalOverlay = styled.div<{ $show: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -12,8 +12,8 @@ const ModalOverlay = styled.div<{ show: boolean }>`
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 2000;
-  opacity: ${props => props.show ? 1 : 0};
-  visibility: ${props => props.show ? 'visible' : 'hidden'};
+  opacity: ${props => props.$show ? 1 : 0};
+  visibility: ${props => props.$show ? 'visible' : 'hidden'};
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -21,7 +21,7 @@ const ModalOverlay = styled.div<{ show: boolean }>`
   padding: 20px;
 `;
 
-const ModalContainer = styled.div<{ show: boolean }>`
+const ModalContainer = styled.div<{ $show: boolean }>`
   background: ${({ theme }) => theme.colors.background};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 12px;
@@ -29,7 +29,7 @@ const ModalContainer = styled.div<{ show: boolean }>`
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
-  transform: ${props => props.show ? 'scale(1)' : 'scale(0.95)'};
+  transform: ${props => props.$show ? 'scale(1)' : 'scale(0.95)'};
   transition: transform 0.3s ease;
 `;
 
@@ -118,8 +118,8 @@ interface ContentModalProps {
 
 export const ContentModal: React.FC<ContentModalProps> = ({ show, onClose, title, content }) => {
   return (
-    <ModalOverlay show={show} onClick={onClose}>
-      <ModalContainer show={show} onClick={e => e.stopPropagation()}>
+    <ModalOverlay $show={show} onClick={onClose}>
+      <ModalContainer $show={show} onClick={e => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>
           <CloseButton onClick={onClose}>

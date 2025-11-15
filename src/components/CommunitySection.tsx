@@ -114,15 +114,15 @@ const ActionButtons = styled.div`
   align-items: center;
 `;
 
-const ActionButton = styled.button<{ isLiked?: boolean; disabled?: boolean }>`
+const ActionButton = styled.button<{ $isLiked?: boolean; $disabled?: boolean }>`
   background: none;
   border: none;
   color: ${props => 
-    props.isLiked 
+    props.$isLiked 
       ? props.theme.colors.primary 
       : props.theme.colors.textSecondary
   };
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   display: flex;
   align-items: center;
   gap: 4px;
@@ -130,7 +130,7 @@ const ActionButton = styled.button<{ isLiked?: boolean; disabled?: boolean }>`
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
-  opacity: ${props => props.disabled ? 0.6 : 1};
+  opacity: ${props => props.$disabled ? 0.6 : 1};
 
   &:hover:not(:disabled) {
     background: ${props => props.theme.colors.primaryLight}20;
@@ -347,7 +347,8 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
             <ActionButtons>
               <ActionButton
                 onClick={() => handleLikePost(post.id)}
-                isLiked={likedPosts.includes(post.id)}
+                $isLiked={likedPosts.includes(post.id)}
+                $disabled={likedPosts.includes(post.id)}
                 disabled={likedPosts.includes(post.id)}
                 title={likedPosts.includes(post.id) ? 'Already liked' : 'Like this post'}
               >

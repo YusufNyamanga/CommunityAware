@@ -6,17 +6,20 @@ class BackendApiService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000';
+    const defaultURL = origin.includes(':3000') ? 'http://localhost:5000' : origin;
+    this.baseURL = process.env.REACT_APP_BACKEND_URL || defaultURL;
     console.log('🔒 Backend API Service initialized (Secure mode)');
     console.log('Backend URL:', this.baseURL);
   }
 
   async sendMessage(
-    message: string, 
+    message: string,
     conversationHistory: ChatMessage[] = [],
     category?: LegalCategory,
     onChunk?: (chunk: string) => void,
-    language: string = 'en'
+    language: string = 'en',
+    onStatus?: (status: 'retrying' | 'fallback') => void
   ): Promise<string> {
     try {
       // Prepare history in the format expected by backend
@@ -34,9 +37,121 @@ class BackendApiService {
       };
 
       if (onChunk) {
-        // For now, use simulated streaming with regular POST
-        // Real streaming would require Server-Sent Events or WebSocket implementation
-        return this.fallbackToPost(requestData, onChunk);
+        const tryEventSource = (): Promise<string | null> => {
+          try {
+            const historyPayload = JSON.stringify(history.slice(-6));
+            const url = `${this.baseURL}/api/chat/stream?message=${encodeURIComponent(message)}&language=${encodeURIComponent(language)}${category ? `&category=${encodeURIComponent(category)}` : ''}&history=${encodeURIComponent(historyPayload)}`;
+            return new Promise((resolve) => {
+              let full = '';
+              const es = new EventSource(url);
+              es.onmessage = (e) => {
+                if (e.data === '[DONE]') {
+                  es.close();
+                  resolve(full || 'No response received');
+                  return;
+                }
+                try {
+                  const payload = JSON.parse(e.data);
+                  if (payload.error) {
+                    es.close();
+                    resolve(null);
+                    return;
+                  }
+                  if (payload.content) {
+                    full += payload.content;
+                    onChunk?.(payload.content);
+                  }
+                } catch {
+                }
+              };
+              es.onerror = () => {
+                es.close();
+                resolve(null);
+              };
+            });
+          } catch {
+            return Promise.resolve(null);
+          }
+        };
+
+        const attemptStream = async (): Promise<{ content: string | null, ok: boolean }> => {
+          const response = await fetch(`${this.baseURL}/api/chat`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ...requestData, stream: true })
+          });
+          if (!response.ok) {
+            return { content: null, ok: false };
+          }
+          const contentType = response.headers.get('content-type') || '';
+          if (!contentType.includes('text/event-stream')) {
+            return { content: null, ok: false };
+          }
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let fullContent = '';
+          let buffer = '';
+          if (!reader) {
+            return { content: null, ok: false };
+          }
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunkText = decoder.decode(value, { stream: true });
+            buffer += chunkText;
+            while (true) {
+              const sepIndex = buffer.indexOf('\n\n');
+              if (sepIndex === -1) break;
+              const evt = buffer.slice(0, sepIndex).trim();
+              buffer = buffer.slice(sepIndex + 2);
+              if (!evt) continue;
+              if (evt === 'data: [DONE]') {
+                buffer = '';
+                break;
+              }
+              if (evt.startsWith('data: ')) {
+                const payloadText = evt.substring(6);
+                try {
+                  const payload = JSON.parse(payloadText);
+                  if (payload.error) {
+                    throw new Error(payload.error);
+                  }
+                  if (payload.content) {
+                    fullContent += payload.content;
+                    onChunk?.(payload.content);
+                  }
+                } catch {}
+              }
+            }
+          }
+          return { content: fullContent || 'No response received', ok: true };
+        };
+
+        try {
+          const esResult = await tryEventSource();
+          if (esResult) {
+            return esResult;
+          }
+          const first = await attemptStream();
+          if (first.ok && first.content) {
+            return first.content;
+          }
+          onStatus?.('retrying');
+          await new Promise(r => setTimeout(r, 300));
+          const second = await attemptStream();
+          if (second.ok && second.content) {
+            return second.content;
+          }
+          onStatus?.('fallback');
+          const fallbackContent = await this.fallbackToPost(requestData, onChunk);
+          return fallbackContent;
+        } catch {
+          onStatus?.('fallback');
+          const fallbackContent = await this.fallbackToPost(requestData, onChunk);
+          return fallbackContent;
+        }
       } else {
         // Non-streaming implementation
         const response = await axios.post(`${this.baseURL}/api/chat`, requestData, {

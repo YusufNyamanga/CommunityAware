@@ -64,6 +64,8 @@ export interface Translations {
   
   // Loading states
   aiThinking: string;
+  connectionRetrying: string;
+  connectionFallback: string;
   
   // Common
   loading: string;
@@ -160,6 +162,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "AI is thinking...",
+    connectionRetrying: "Connection interrupted, retrying…",
+    connectionFallback: "Switched to stable mode",
     
     // Common
     loading: "Loading...",
@@ -255,6 +259,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "الذكي الاصطناعي يفكر...",
+    connectionRetrying: "انقطع الاتصال، نحاول إعادة الاتصال…",
+    connectionFallback: "تم التحويل إلى الوضع المستقر",
     
     // Common
     loading: "جاري التحميل...",
@@ -350,6 +356,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "AI正在思考...",
+    connectionRetrying: "连接中断，正在重试…",
+    connectionFallback: "已切换到稳定模式",
     
     // Common
     loading: "加载中...",
@@ -445,6 +453,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "La IA está pensando...",
+    connectionRetrying: "Conexión interrumpida, reintentando…",
+    connectionFallback: "Cambiado al modo estable",
     
     // Common
     loading: "Cargando...",
@@ -540,6 +550,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "AI ചിന്തിക്കുന്നു...",
+    connectionRetrying: "ബന്ധം തകരാറുപറ്റി, വീണ്ടും ശ്രമിക്കുന്നു…",
+    connectionFallback: "സ്ഥിരമായ മോഡിലേക്ക് മാറി",
     
     // Common
     loading: "ലോഡ് ചെയ്യുന്നു...",
@@ -635,6 +647,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "AI etegeeza...",
+    connectionRetrying: "Okukolagana kuvumise, tukuddamu okugezaako…",
+    connectionFallback: "Tulikyusiza mu nkola ey’egumiddwa",
     
     // Common
     loading: "Gitegekibwa...",
@@ -730,6 +744,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "L'IA réfléchit...",
+    connectionRetrying: "Connexion interrompue, nouvelle tentative…",
+    connectionFallback: "Passage en mode stable",
     
     // Common
     loading: "Chargement...",
@@ -825,6 +841,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "Nag-iisip ang AI...",
+    connectionRetrying: "Naantala ang koneksyon, muling sinusubukan…",
+    connectionFallback: "Lumipat sa stable mode",
     
     // Common
     loading: "Nilo-load...",
@@ -902,6 +920,8 @@ export const translations: Record<string, Translations> = {
     visaServicesQuery: "बहरीन व्यापार वीज़ा के लिए मुझे कौन से दस्तावेज चाहिए?",
     lmraQuery: "LMRA के माध्यम से लचीले कार्य परमिट (स्वयं प्रायोजित) के लिए कैसे आवेदन करूं?",
     aiThinking: "AI सोच रहा है...",
+    connectionRetrying: "कनेक्शन बाधित, पुनः प्रयास हो रहा है…",
+    connectionFallback: "स्थिर मोड में स्विच किया गया",
     loading: "लोड हो रहा है...",
     error: "त्रुटि",
     tryAgain: "फिर कोशिश करें",
@@ -973,6 +993,8 @@ export const translations: Record<string, Translations> = {
     visaServicesQuery: "بحرین کاروباری ویزا کے لیے مجھے کون سے دستاویزات درکار ہیں؟",
     lmraQuery: "LMRA کے ذریعے لچکدار ورک پرمٹ (خود کفالت) کے لیے کیسے درخواست دوں؟",
     aiThinking: "AI سوچ رہا ہے...",
+    connectionRetrying: "کنکشن منقطع، دوبارہ کوشش جاری…",
+    connectionFallback: "مستحکم موڈ پر منتقل",
     loading: "لوڈ ہو رہا ہے...",
     error: "خرابی",
     tryAgain: "دوبارہ کوشش کریں",
@@ -1044,6 +1066,8 @@ export const translations: Record<string, Translations> = {
     visaServicesQuery: "Quais documentos preciso para um visto de negócios do Bahrein?",
     lmraQuery: "Como solicitar uma autorização de trabalho flexível (autopatrocinada) através do LMRA?",
     aiThinking: "IA está pensando...",
+    connectionRetrying: "Conexão interrompida, tentando novamente…",
+    connectionFallback: "Alternado para modo estável",
     loading: "Carregando...",
     error: "Erro",
     tryAgain: "Tentar Novamente",
@@ -1133,6 +1157,8 @@ export const translations: Record<string, Translations> = {
     
     // Loading states
     aiThinking: "AI inafikiria...",
+    connectionRetrying: "Muunganisho umevurugika, inajaribu tena…",
+    connectionFallback: "Imebadilishwa hadi hali thabiti",
     
     // Common
     loading: "Inapakia...",

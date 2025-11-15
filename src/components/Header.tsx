@@ -178,7 +178,7 @@ const HamburgerButton = styled.button`
   }
 `;
 
-const MenuOverlay = styled.div<{ isOpen: boolean }>`
+const MenuOverlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -186,15 +186,15 @@ const MenuOverlay = styled.div<{ isOpen: boolean }>`
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 200;
-  opacity: ${props => props.isOpen ? 1 : 0};
-  visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
   transition: all 0.3s ease;
 `;
 
-const MenuPanel = styled.div<{ isOpen: boolean }>`
+const MenuPanel = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
-  left: ${props => props.isOpen ? '0' : '-320px'};
+  left: ${props => props.$isOpen ? '0' : '-320px'};
   width: 300px;
   height: 100vh;
   background: ${({ theme }) => theme.colors.surface};
@@ -208,7 +208,7 @@ const MenuPanel = styled.div<{ isOpen: boolean }>`
   @media (max-width: 480px) {
     width: 85vw;
     max-width: 280px;
-    left: ${props => props.isOpen ? '0' : '-100vw'};
+    left: ${props => props.$isOpen ? '0' : '-100vw'};
   }
 `;
 
@@ -365,10 +365,10 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
       </HeaderContainer>
 
       {/* Menu Overlay */}
-      <MenuOverlay isOpen={isMenuOpen} onClick={closeMenu} />
+      <MenuOverlay $isOpen={isMenuOpen} onClick={closeMenu} />
       
       {/* Menu Panel */}
-      <MenuPanel isOpen={isMenuOpen}>
+      <MenuPanel $isOpen={isMenuOpen}>
         <MenuHeader>
           <MenuTitle>Navigation</MenuTitle>
           <CloseButton onClick={closeMenu}>

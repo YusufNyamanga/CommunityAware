@@ -190,6 +190,7 @@ interface ChatProps {
 export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [streamStatus, setStreamStatus] = useState<null | 'retrying' | 'fallback'>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -338,7 +339,9 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
             ? { ...msg, content: streamingContent }
             : msg
         ));
-      }, currentLanguage);
+      }, currentLanguage, (status) => {
+        setStreamStatus(status);
+      });
       
       // Ensure final message is set with the complete response
       setMessages(prev => prev.map(msg => 
@@ -346,6 +349,7 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
           ? { ...msg, content: response }
           : msg
       ));
+      setStreamStatus(null);
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -416,6 +420,16 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
               <LoadingIndicator>
                 <Loader size={16} />
                 <span>{t.aiThinking}</span>
+              </LoadingIndicator>
+            )}
+
+            {streamStatus && (
+              <LoadingIndicator>
+                <span>
+                  {streamStatus === 'retrying' 
+                    ? t.connectionRetrying || 'Connection interrupted, retrying…'
+                    : t.connectionFallback || 'Switched to stable mode'}
+                </span>
               </LoadingIndicator>
             )}
             
