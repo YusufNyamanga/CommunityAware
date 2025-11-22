@@ -2,6 +2,9 @@ import { createGlobalStyle } from 'styled-components';
 import { Theme } from '../types';
 
 export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
+  :root {
+    --header-height: 85px;
+  }
   * {
     margin: 0;
     padding: 0;
@@ -30,6 +33,12 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     overflow-x: hidden;
     /* Better mobile scrolling */
     -webkit-overflow-scrolling: touch;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  *::placeholder {
+    font-size: 0.95rem;
   }
 
   html {
@@ -155,6 +164,9 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
   
   /* Mobile touch optimizations */
   @media (max-width: 768px) {
+    :root {
+      --header-height: 60px;
+    }
     /* Improve button touch targets */
     button {
       min-height: 44px;
@@ -177,6 +189,9 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     /* Better tap highlighting */
     * {
       -webkit-tap-highlight-color: ${({ theme }) => theme.colors.primary}20;
+    }
+    *::placeholder {
+      font-size: 0.85rem;
     }
   }
   

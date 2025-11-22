@@ -1,0 +1,5 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#FF8C00" rx="50"/>
+  <text x="256" y="280" font-family="Inter, sans-serif" font-size="128" font-weight="bold" text-anchor="middle" fill="white">UA</text>
+  <text x="256" y="350" font-family="Inter, sans-serif" font-size="32" text-anchor="middle" fill="white">Umoja-Aware</text>
+</svg>

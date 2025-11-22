@@ -71,20 +71,24 @@ export const aiController = {
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('Access-Control-Allow-Origin', '*');
+        if (typeof (res as any).flushHeaders === 'function') {
+          (res as any).flushHeaders();
+        }
 
         try {
           // Filter out system messages and map to correct type
           const filteredHistory = (history || [])
-            .filter(msg => msg.role !== 'system')
-            .map(msg => ({
-              role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+            .filter((msg: any) => msg && msg.role !== 'system')
+            .map((msg: any) => ({
+              role: (msg.role as 'user' | 'assistant') || (msg.sender === 'user' ? 'user' : 'assistant'),
               content: msg.content
             }));
 
           for await (const chunk of aiService.streamMessage(
             message,
             filteredHistory,
-            queryCategory
+            queryCategory,
+            language
           )) {
             if (chunk.error) {
               res.write(`data: ${JSON.stringify({ error: chunk.error })}\n\n`);
@@ -107,9 +111,9 @@ export const aiController = {
       // Non-streaming response
       // Filter out system messages and map to correct type
       const filteredHistory = (history || [])
-        .filter(msg => msg.role !== 'system')
-        .map(msg => ({
-          role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+        .filter((msg: any) => msg && msg.role !== 'system')
+        .map((msg: any) => ({
+          role: (msg.role as 'user' | 'assistant') || (msg.sender === 'user' ? 'user' : 'assistant'),
           content: msg.content
         }));
 
@@ -155,6 +159,9 @@ export const aiController = {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
       res.setHeader('Access-Control-Allow-Origin', '*');
+      if (typeof (res as any).flushHeaders === 'function') {
+        (res as any).flushHeaders();
+      }
 
       let filteredHistory: Array<{ role: 'user' | 'assistant', content: string }> = [];
       if (historyParam) {
@@ -164,7 +171,7 @@ export const aiController = {
             filteredHistory = parsed
               .filter((msg: any) => msg && msg.role !== 'system')
               .map((msg: any) => ({
-                role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+                role: (msg.role as 'user' | 'assistant') || (msg.sender === 'user' ? 'user' : 'assistant'),
                 content: msg.content
               }))
               .slice(-10);

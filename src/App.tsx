@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 import { ThemeProvider, useTheme } from './hooks/useTheme';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { Header } from './components/Header';
 import { Chat } from './components/Chat';
-import { KnowledgeBase } from './components/KnowledgeBase';
-import CommunitySection from './components/CommunitySection';
-import { Footer } from './components/Footer';
+const KnowledgeBase = lazy(() => import('./components/KnowledgeBase').then(m => ({ default: m.KnowledgeBase })));
+const CommunitySection = lazy(() => import('./components/CommunitySection'));
+const AboutPage = lazy(() => import('./components/About'));
+const TermsPage = lazy(() => import('./components/Terms'));
+const PrivacyPage = lazy(() => import('./components/Privacy'));
 import { CookieConsent } from './components/CookieConsent';
 import styled from 'styled-components';
 
@@ -20,10 +22,40 @@ const AppContainer = styled.div`
   overflow-x: hidden;
 `;
 
+const OfflineBanner = styled.div<{ $show: boolean }>`
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  background: ${({ theme }) => theme.colors.warning};
+  color: #000;
+  padding: 8px 12px;
+  text-align: center;
+  display: ${({ $show }) => ($show ? 'block' : 'none')};
+`;
+
 const MainContent = styled.main`
   display: flex;
   flex: 1;
   overflow: hidden;
+`;
+
+const ContentWithSidebar = styled.div`
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+`;
+
+const SidebarSection = styled.section`
+  flex: 0 0 400px;
+  max-width: 400px;
+  overflow-y: auto;
+  border-left: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  padding: 20px;
+  
+  @media (max-width: 1280px) {
+    display: none;
+  }
 `;
 
 const ChatSection = styled.section`
@@ -46,60 +78,6 @@ const KnowledgeSection = styled.section`
   }
 `;
 
-const ToggleKnowledgeButton = styled.button`
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  background: ${({ theme }) => theme.colors.primary};
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.2rem;
-  z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.primaryDark};
-    transform: scale(1.1);
-  }
-  
-  @media (min-width: 1025px) {
-    display: none;
-  }
-`;
-
-const MobileKnowledgeOverlay = styled.div<{ show: boolean }>`
-  position: fixed;
-  top: 0;
-  right: ${props => props.show ? '0' : '-100%'};
-  width: 90%;
-  max-width: 500px;
-  height: 100vh;
-  background: ${({ theme }) => theme.colors.background};
-  z-index: 1001;
-  overflow-y: auto;
-  transition: right 0.3s ease;
-  border-left: 1px solid ${({ theme }) => theme.colors.border};
-  
-  @media (min-width: 1025px) {
-    display: none;
-  }
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.text};
-  z-index: 1002;
-`;
 
 
 const ContentArea = styled.div`
@@ -107,14 +85,26 @@ const ContentArea = styled.div`
   overflow: hidden;
 `;
 
-type ActiveTab = 'chat' | 'knowledge' | 'community';
+type ActiveTab = 'chat' | 'knowledge' | 'community' | 'about' | 'terms' | 'privacy';
 
 // Inner App component that has access to theme
 const AppContent: React.FC = () => {
   const { theme } = useTheme();
-  const [showMobileKnowledge, setShowMobileKnowledge] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
+  const [chatSessionId, setChatSessionId] = useState<string>(() => Date.now().toString());
   const [communityPosts, setCommunityPosts] = useState<any[]>([]);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  React.useEffect(() => {
+    const onOnline = () => setIsOffline(false);
+    const onOffline = () => setIsOffline(true);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
+  }, []);
   
   const handlePostToCommunity = (question: string, answer: string, category?: any) => {
     const newPost = {
@@ -133,17 +123,23 @@ const AppContent: React.FC = () => {
     };
     
     setCommunityPosts(prev => [newPost, ...prev]);
-    setActiveTab('community'); // Switch to community tab to show the posted question
+    // Keep chat visible; user can navigate to Community manually
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'chat':
-        return <Chat onPostToCommunity={handlePostToCommunity} />;
+        return <Chat key={chatSessionId} sessionId={chatSessionId} onPostToCommunity={handlePostToCommunity} />;
       case 'knowledge':
         return <KnowledgeBase />;
       case 'community':
         return <CommunitySection onClose={() => setActiveTab('chat')} additionalPosts={communityPosts} />;
+      case 'about':
+        return <AboutPage />;
+      case 'terms':
+        return <TermsPage />;
+      case 'privacy':
+        return <PrivacyPage />;
       default:
         return <Chat onPostToCommunity={handlePostToCommunity} />;
     }
@@ -153,46 +149,22 @@ const AppContent: React.FC = () => {
     <StyledThemeProvider theme={theme}>
       <GlobalStyles theme={theme} />
       <AppContainer>
+        <OfflineBanner $show={isOffline}>You are offline. Some features may be unavailable.</OfflineBanner>
         <Header 
           activeTab={activeTab} 
           onTabChange={setActiveTab} 
+          onNewChat={() => setChatSessionId(Date.now().toString())}
         />
 
         <MainContent>
           <ContentArea>
-            {renderContent()}
+            <Suspense fallback={<div style={{ padding: 20 }}>Loading…</div>}>
+              {renderContent()}
+            </Suspense>
           </ContentArea>
-          
-          {/* Desktop sidebar - only show for desktop and only on chat tab */}
-          {activeTab === 'chat' && (
-            <KnowledgeSection>
-              <KnowledgeBase />
-            </KnowledgeSection>
-          )}
         </MainContent>
         
-        {/* Mobile Knowledge Base Toggle - only show on chat tab */}
-        {activeTab === 'chat' && (
-          <ToggleKnowledgeButton 
-            onClick={() => setShowMobileKnowledge(true)}
-            title="Open Knowledge Base"
-          >
-            📚
-          </ToggleKnowledgeButton>
-        )}
         
-        {/* Mobile Knowledge Base Overlay */}
-        <MobileKnowledgeOverlay show={showMobileKnowledge}>
-          <CloseButton 
-            onClick={() => setShowMobileKnowledge(false)}
-            title="Close Knowledge Base"
-          >
-            ×
-          </CloseButton>
-          <KnowledgeBase />
-        </MobileKnowledgeOverlay>
-        
-        <Footer />
         
         {/* Cookie Consent Popup */}
         <CookieConsent />

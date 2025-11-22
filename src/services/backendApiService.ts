@@ -6,9 +6,12 @@ class BackendApiService {
   private baseURL: string;
 
   constructor() {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000';
-    const defaultURL = origin.includes(':3000') ? 'http://localhost:5000' : origin;
-    this.baseURL = process.env.REACT_APP_BACKEND_URL || defaultURL;
+    const w = typeof window !== 'undefined' ? window.location : { protocol: 'http:', hostname: 'localhost', port: '5000' } as any;
+    const defaultDev = `${w.protocol}//${w.hostname}:5000`;
+    const defaultProd = `${w.protocol}//${w.hostname}`;
+    const devPorts = new Set(['3000','3001','3002','3003']);
+    const inferred = devPorts.has(w.port) ? defaultDev : defaultProd;
+    this.baseURL = process.env.REACT_APP_BACKEND_URL || inferred;
     console.log('🔒 Backend API Service initialized (Secure mode)');
     console.log('Backend URL:', this.baseURL);
   }
@@ -139,7 +142,7 @@ class BackendApiService {
             return first.content;
           }
           onStatus?.('retrying');
-          await new Promise(r => setTimeout(r, 300));
+          await new Promise(r => setTimeout(r, 50));
           const second = await attemptStream();
           if (second.ok && second.content) {
             return second.content;
@@ -169,19 +172,8 @@ class BackendApiService {
       }
     } catch (error: any) {
       console.error('Backend API Error:', error);
-      
-      // Provide user-friendly error messages
-      if (error.response?.status === 401) {
-        throw new Error('Authentication failed. Please check your credentials.');
-      } else if (error.response?.status === 429) {
-        throw new Error('Rate limit exceeded. Please wait a moment and try again.');
-      } else if (error.response?.status >= 500) {
-        throw new Error('Server error occurred. Please try again in a moment.');
-      } else if (error.code === 'ECONNREFUSED') {
-        throw new Error('Cannot connect to backend server. Please ensure the backend is running.');
-      }
-      
-      throw new Error(error.message || 'Failed to get response from backend service');
+      const inferredCategory: LegalCategory | undefined = category || this.categorizeQuery(message);
+      return this.buildOfflineFallback(message, inferredCategory, language);
     }
   }
 
@@ -212,37 +204,13 @@ class BackendApiService {
         const chunk = words[i] + (i < words.length - 1 ? ' ' : '');
         onChunk(chunk);
         // Small delay to simulate streaming
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 10));
       }
     }
     
     return content;
   }
 
-  // Method to categorize user queries (now handled by backend)
-  categorizeQuery(message: string): LegalCategory {
-    // This is now done by the backend, but we keep this for compatibility
-    const keywords: Record<LegalCategory, string[]> = {
-      'labour-law': ['labour', 'employee', 'salary', 'working hours', 'termination', 'contract', 'overtime', 'vacation'],
-      'company-formation': ['company', 'business', 'registration', 'license', 'startup', 'partnership', 'corporation'],
-      'visa-services': ['visa', 'residence', 'permit', 'entry', 'tourist', 'business visa'],
-      'grace-period': ['grace period', 'extension', 'overstay', 'renewal'],
-      'lmra': ['lmra', 'work permit', 'labour market'],
-      'sijilat': ['sijilat', 'commercial registration', 'business license'],
-      'general-legal': ['law', 'legal', 'court', 'attorney', 'lawyer'],
-      'other': []
-    };
-
-    const lowerMessage = message.toLowerCase();
-    
-    for (const [category, categoryKeywords] of Object.entries(keywords)) {
-      if (categoryKeywords.some(keyword => lowerMessage.includes(keyword))) {
-        return category as LegalCategory;
-      }
-    }
-    
-    return 'other';
-  }
 
   // Health check method
   async healthCheck(): Promise<boolean> {
@@ -280,6 +248,43 @@ class BackendApiService {
     } catch (error: any) {
       console.error('Connection test failed:', error);
       throw new Error(error.message || 'Connection test failed');
+    }
+  }
+
+  categorizeQuery(message: string): LegalCategory {
+    const q = (message || '').toLowerCase();
+    if (/sijilat|company|register|cr\b|commercial\s+registration/.test(q)) return 'company-formation';
+    if (/visa|residence|permit|work\s*permit|grace\s*period|overstay/.test(q)) return 'visa-services';
+    if (/labou?r|salary|wage|overtime|termination|end\s*of\s*service|contract/.test(q)) return 'labour-law';
+    if (/lmra|work\s*permit|transfer/.test(q)) return 'lmra';
+    return 'general-legal';
+  }
+
+  private buildOfflineFallback(message: string, category?: LegalCategory, language: string = 'en'): string {
+    const q = message?.trim();
+    const heading = 'I could not reach the AI service right now.';
+    const intro = q ? `Your question: ${q}` : '';
+    const lmraLine = 'LMRA Call Centre (employers): +973 17506055. Toll‑free 995. Emergencies 999.';
+    const common = 'Keep copies of contracts, payments and official correspondence.';
+
+    switch (category) {
+      case 'company-formation':
+      case 'sijilat':
+        return `${heading}\n\n${intro}\n\nCompany registration via Sijilat – quick steps:\n1) Determine legal form (WLL/Single Person Company/Establishment).\n2) Reserve name and prepare memorandum/articles as applicable.\n3) Submit application on Sijilat with shareholders’ IDs, address, activity list and capital.\n4) Obtain activity-specific approvals (municipality, health, industry) if required.\n5) Pay fees and receive commercial registration (CR) issuance.\n6) Register for LMRA and immigration if hiring staff.\n\nTip: choose the correct activity codes; some require prior approvals.\n${lmraLine}`;
+
+      case 'visa-services':
+      case 'grace-period':
+        return `${heading}\n\n${intro}\n\nVisa essentials in Bahrain:\n1) Employer initiates LMRA work permit; employee submits passport, photos, medical where applicable.\n2) After permit approval, immigration issues visa/residency.\n3) Grace period/overstay: request extension promptly and settle fines if any.\n${lmraLine}`;
+
+      case 'labour-law':
+        return `${heading}\n\n${intro}\n\nCore labour law points:\n1) Written contract stating wage, role and hours.\n2) Standard working hours with overtime rules; weekly rest day.\n3) End‑of‑service and termination procedures follow statutory notice and entitlements.\n4) Disputes: use official mediation channels.\n${common}\n${lmraLine}`;
+
+      case 'lmra':
+        return `${heading}\n\n${intro}\n\nLMRA processes:\n1) Employer accounts manage permits, renewals and transfers.\n2) Employees/domestic workers may contact LMRA for assistance.\n${lmraLine}`;
+
+      case 'general-legal':
+      default:
+        return `${heading}\n\n${intro}\n\nGeneral guidance:\n1) Verify your status and applicable rules for your case.\n2) Use official portals (Sijilat, LMRA) for applications and updates.\n3) Keep documentation organized; escalate via formal channels for disputes.\n${lmraLine}`;
     }
   }
 }

@@ -15,23 +15,25 @@ const ChatContainer = styled.div`
   flex: 1;
 `;
 
-const MessagesContainer = styled.div`
+const MessagesContainer = styled.div<{ $idle: boolean }>`
   flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
+  overflow-y: ${({ $idle }) => ($idle ? 'hidden' : 'auto')};
+  padding: ${({ $idle }) => ($idle ? '1.25rem' : '2rem')};
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  justify-content: ${({ $idle }) => ($idle ? 'center' : 'flex-start')};
+  align-items: ${({ $idle }) => ($idle ? 'center' : 'stretch')};
   scroll-behavior: smooth;
-  /* Anchor scrolling to bottom for better streaming experience */
   overflow-anchor: none;
+  min-height: 0; /* allow content to shrink within flex parent */
   
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: ${({ $idle }) => ($idle ? '1rem' : '1rem')};
   }
   
   @media (max-width: 480px) {
-    padding: 0.75rem 0.5rem;
+    padding: ${({ $idle }) => ($idle ? '0.75rem 0.5rem' : '0.75rem 0.5rem')};
   }
 `;
 
@@ -63,92 +65,33 @@ const WelcomeText = styled.p`
   margin-bottom: 1.5rem;
 `;
 
-const QuickActions = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(2, auto);
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(2, auto);
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
+const SuggestionRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
 `;
 
-const QuickActionCard = styled.button`
-  padding: 0.75rem;
+const SuggestionChip = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.primary}30;
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.colors.surface};
-  color: ${({ theme }) => theme.colors.text};
-  text-align: left;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: 14px;
+  height: 28px;
+  padding: 0 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  height: 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
   
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.colors.primary}10;
+    border-color: ${({ theme }) => theme.colors.primary}50;
   }
   
-  h3 {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.primary};
-    margin: 0 0 0.25rem 0;
-    line-height: 1.2;
-  }
-  
-  p {
-    font-size: 0.675rem;
-    color: ${({ theme }) => theme.colors.textSecondary};
-    line-height: 1.2;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  /* Mobile optimizations for 2-column layout */
-  @media (max-width: 768px) {
-    padding: 0.5rem;
-    height: 70px;
-    
-    h3 {
-      font-size: 0.75rem;
-    }
-    
-    p {
-      font-size: 0.625rem;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    padding: 0.5rem 0.375rem;
-    height: 65px;
-    border-radius: 6px;
-    
-    h3 {
-      font-size: 0.7rem;
-    }
-    
-    p {
-      font-size: 0.575rem;
-    }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -178,7 +121,8 @@ const EmptyState = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2rem;
+  padding: 1.25rem;
+  height: 100%;
 `;
 
 interface ChatProps {
@@ -196,57 +140,88 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const { currentLanguage } = useLanguage();
   const t = useTranslations(currentLanguage);
+  const [postedMessageIds, setPostedMessageIds] = useState<Set<string>>(new Set());
+  const storageKey = `chat:session:${sessionId || 'default'}`;
+  
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+  const placeholderTopics = [
+    `${t.labourLawQuery} ...`,
+    `${t.companyFormationQuery} ...`,
+    `${t.culturalGuidelinesQuery} ...`,
+  ];
+  const [typedPlaceholder, setTypedPlaceholder] = useState("");
+  const [phase, setPhase] = useState<'typing' | 'deleting'>("typing");
+  const [cursorPos, setCursorPos] = useState(0);
   
   const handlePostToCommunity = (aiMessage: ChatMessage, userQuestion: string) => {
+    if (!aiMessage?.id) return;
+    if (postedMessageIds.has(aiMessage.id)) return;
     if (onPostToCommunity && aiMessage.content) {
       onPostToCommunity(userQuestion, aiMessage.content, aiMessage.category);
+      setPostedMessageIds(prev => new Set(prev).add(aiMessage.id));
     }
   };
 
-  const quickActions = [
-    {
-      title: t.labourLaw,
-      description: t.askQuestion,
-      query: t.labourLawQuery
-    },
-    {
-      title: t.lmra,
-      description: t.askQuestion,
-      query: t.lmraQuery
-    },
-    {
-      title: t.workingHours,
-      description: t.askQuestion,
-      query: currentLanguage === 'en' ? 'What are the standard working hours and overtime rules in Bahrain?' :
-             currentLanguage === 'ar' ? 'ما هي ساعات العمل القياسية وقواعد العمل الإضافي في البحرين؟' :
-             currentLanguage === 'zh' ? '巴林的标准工作时间和加班规定是什么？' :
-             currentLanguage === 'es' ? '¿Cuáles son las horas de trabajo estándar y las reglas de horas extra en Bahréin?' :
-             currentLanguage === 'ml' ? 'ബഹ്റൈനിലെ സ്റ്റാൻഡേർഡ് വർക്കിംഗ് അവേഴ്സും ഓവർടൈം നിയമങ്ങളും എന്താണ്?' :
-             currentLanguage === 'lg' ? 'Ssaawa z\'omulimu ezitongole n\'amateeka g\'omulimu ogw\'eyongeddwa mu Bahrain biki?' :
-             currentLanguage === 'fr' ? 'Quelles sont les heures de travail standard et les règles des heures supplémentaires à Bahreïn?' :
-             currentLanguage === 'tl' ? 'Ano ang mga standard na oras ng trabaho at patakaran sa overtime sa Bahrain?' :
-             currentLanguage === 'hi' ? 'बहरीन में मानक कार्य घंटे और ओवरटाइम नियम क्या हैं?' :
-             currentLanguage === 'ur' ? 'بحرین میں معیاری کام کے اوقات اور اوور ٹائم کے قوانین کیا ہیں؟' :
-             currentLanguage === 'pt' ? 'Quais são as horas de trabalho padrão e as regras de horas extras no Bahrein?' :
-             'What are the standard working hours and overtime rules in Bahrain?'
-    },
-    {
-      title: t.leaveBenefits,
-      description: t.askQuestion,
-      query: currentLanguage === 'en' ? 'What are my annual leave and sick leave entitlements under Bahrain labour law?' :
-             currentLanguage === 'ar' ? 'ما هي حقوقي في الإجازة السنوية والإجازة المرضية حسب قانون العمل البحريني؟' :
-             currentLanguage === 'zh' ? '根据巴林劳动法，我的年假和病假权利是什么？' :
-             currentLanguage === 'es' ? '¿Cuáles son mis derechos de vacaciones anuales y licencia por enfermedad bajo la ley laboral de Bahréin?' :
-             currentLanguage === 'ml' ? 'ബഹ്റൈൻ തൊഴിൽ നിയമപ്രകാരം എന്റെ വാർഷിക അവധിയും രോഗാവധിയും എന്താണ്?' :
-             currentLanguage === 'lg' ? 'Ddala lyange ery\'omwaka n\'olw\'obulwadde mu mateeka g\'omulimu ga Bahrain biki?' :
-             currentLanguage === 'fr' ? 'Quels sont mes droits aux congés annuels et aux congés de maladie selon le droit du travail de Bahreïn?' :
-             currentLanguage === 'tl' ? 'Ano ang aking mga karapatan sa annual leave at sick leave sa ilalim ng batas sa paggawa ng Bahrain?' :
-             currentLanguage === 'hi' ? 'बहरीन श्रम कानून के तहत मेरे वार्षिक छुट्टी और बीमारी की छुट्टी के अधिकार क्या हैं?' :
-             currentLanguage === 'ur' ? 'بحرین لیبر لاء کے تحت میرے سالانہ چھٹی اور بیماری کی چھٹی کے حقوق کیا ہیں؟' :
-             currentLanguage === 'pt' ? 'Quais são meus direitos de férias anuais e licença médica sob a lei trabalhista do Bahrein?' :
-             'What are my annual leave and sick leave entitlements under Bahrain labour law?'
+  const handleSuggestionClick = (query: string) => {
+    handleSendMessage(query);
+  };
+
+  useEffect(() => {
+    const full = placeholderTopics[currentPlaceholderIndex % placeholderTopics.length] || "";
+    const typingSpeed = 40;
+    const deletingSpeed = 30;
+    const timer = setTimeout(() => {
+      if (phase === 'typing') {
+        if (cursorPos < full.length) {
+          const nextPos = cursorPos + 1;
+          setCursorPos(nextPos);
+          setTypedPlaceholder(full.slice(0, nextPos));
+        } else {
+          setPhase('deleting');
+        }
+      } else {
+        if (cursorPos > 0) {
+          const nextPos = cursorPos - 1;
+          setCursorPos(nextPos);
+          setTypedPlaceholder(full.slice(0, nextPos));
+        } else {
+          setPhase('typing');
+          setCurrentPlaceholderIndex((i) => (i + 1) % placeholderTopics.length);
+        }
+      }
+    }, phase === 'typing' ? typingSpeed : deletingSpeed);
+    return () => clearTimeout(timer);
+  }, [phase, cursorPos, currentPlaceholderIndex, t]);
+
+  useEffect(() => {
+    setPhase('typing');
+    setCursorPos(0);
+    setTypedPlaceholder("");
+    setCurrentPlaceholderIndex(0);
+  }, [t]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as ChatMessage[];
+        const restored = parsed.map(m => ({ ...m, timestamp: new Date(m.timestamp as any) }));
+        setMessages(restored);
+      } else {
+        setMessages([]);
+      }
+    } catch {
+      setMessages([]);
     }
-  ];
+  }, [storageKey]);
+
+  useEffect(() => {
+    try {
+      const serializable = messages.map(m => ({ ...m, timestamp: m.timestamp instanceof Date ? m.timestamp.toISOString() : m.timestamp }));
+      localStorage.setItem(storageKey, JSON.stringify(serializable));
+    } catch {}
+  }, [messages, storageKey]);
+
 
   // Enhanced scroll management for streaming
   const isNearBottom = () => {
@@ -297,7 +272,7 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
     }
   }, [messages]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, selectedCategory?: LegalCategory) => {
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content,
@@ -308,32 +283,44 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
-    // Create initial AI message for streaming
     const aiMessageId = (Date.now() + 1).toString();
-    const category = backendApiService.categorizeQuery(content);
-    
-    const initialAiMessage: ChatMessage = {
-      id: aiMessageId,
-      content: '',
-      sender: 'ai',
-      timestamp: new Date(),
-      category,
-    };
-
-    setMessages(prev => [...prev, initialAiMessage]);
+    const category = selectedCategory || backendApiService.categorizeQuery(content);
 
     try {
-      // Get AI response with streaming (Qwen service handles cleaning internally)
       let streamingContent = '';
-      const response = await backendApiService.sendMessage(content, messages, category, (chunk: string) => {
-        // Hide loading indicator once streaming starts
+      const historyForCall = [...messages, userMessage];
+      const hadPreviousAI = messages.some(m => m.sender === 'ai');
+      const sanitizeGreeting = (text: string) => {
+        if (!hadPreviousAI) return text;
+        const pattern = /^(\s*)(hallo\s+habibi|hello|hi|hey|hola|bonjour|merhaba|privet|привет|ciao|salut|ola|olá|你好|مرحبا|أهلا|اهلا|سلام|habari|namaste|नमस्ते)([\s,!.:؛،]*)/i;
+        const replaced = text.replace(pattern, '$1');
+        // also remove time-of-day greetings if any slipped through
+        const tod = /^(\s*)(good\s+(morning|afternoon|evening|night))([\s,!.:]*)/i;
+        return replaced.replace(tod, '$1');
+      };
+      let greetingSanitized = false;
+      const response = await backendApiService.sendMessage(content, historyForCall, category, (chunk: string) => {
         if (streamingContent === '') {
+          if (!greetingSanitized) {
+            const cleaned = sanitizeGreeting(chunk);
+            if (cleaned !== chunk) {
+              chunk = cleaned;
+              greetingSanitized = true;
+            }
+          }
           setIsLoading(false);
+          const aiMsg: ChatMessage = {
+            id: aiMessageId,
+            content: chunk,
+            sender: 'ai',
+            timestamp: new Date(),
+            category,
+          };
+          streamingContent = chunk;
+          setMessages(prev => [...prev, aiMsg]);
+          return;
         }
-        // Accumulate streaming content
         streamingContent += chunk;
-        
-        // Update the message with the streaming content
         setMessages(prev => prev.map(msg => 
           msg.id === aiMessageId 
             ? { ...msg, content: streamingContent }
@@ -343,40 +330,52 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
         setStreamStatus(status);
       });
       
-      // Ensure final message is set with the complete response
-      setMessages(prev => prev.map(msg => 
-        msg.id === aiMessageId 
-          ? { ...msg, content: response }
-          : msg
-      ));
+      setMessages(prev => {
+        const exists = prev.some(m => m.id === aiMessageId);
+        if (!exists) {
+          const aiMsg: ChatMessage = {
+            id: aiMessageId,
+            content: sanitizeGreeting(response),
+            sender: 'ai',
+            timestamp: new Date(),
+            category,
+          };
+          return [...prev, aiMsg];
+        }
+        return prev.map(msg => msg.id === aiMessageId ? { ...msg, content: sanitizeGreeting(response) } : msg);
+      });
       setStreamStatus(null);
       
     } catch (error) {
       console.error('Error sending message:', error);
       
-      // Replace the initial AI message with error message
-      setMessages(prev => prev.map(msg => 
-        msg.id === aiMessageId 
-          ? { 
-              ...msg, 
-              content: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment." 
-            }
-          : msg
-      ));
+      const errorText = t.apologyProcessing || "I apologize, but I'm having trouble processing your request right now. Please try again in a moment.";
+      setMessages(prev => {
+        const exists = prev.some(m => m.id === aiMessageId);
+        if (!exists) {
+          const aiMsg: ChatMessage = {
+            id: aiMessageId,
+            content: errorText,
+            sender: 'ai',
+            timestamp: new Date(),
+            category,
+          };
+          return [...prev, aiMsg];
+        }
+        return prev.map(msg => msg.id === aiMessageId ? { ...msg, content: errorText } : msg);
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleQuickAction = (query: string) => {
-    handleSendMessage(query);
-  };
+  
 
   const showWelcome = messages.length === 0 && !isLoading;
 
   return (
     <ChatContainer>
-      <MessagesContainer ref={messagesContainerRef}>
+      <MessagesContainer ref={messagesContainerRef} $idle={messages.length === 0}>
         {showWelcome ? (
           <EmptyState>
             <WelcomeMessage>
@@ -384,18 +383,11 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
               <WelcomeText>
                 {t.welcomeDescription}
               </WelcomeText>
-              
-              <QuickActions>
-                {quickActions.map((action, index) => (
-                  <QuickActionCard
-                    key={index}
-                    onClick={() => handleQuickAction(action.query)}
-                  >
-                    <h3>{action.title}</h3>
-                    <p>{action.description}</p>
-                  </QuickActionCard>
-                ))}
-              </QuickActions>
+              <SuggestionRow>
+                <SuggestionChip onClick={() => handleSuggestionClick(t.labourLawQuery)} disabled={isLoading}>{t.labourLaw}</SuggestionChip>
+                <SuggestionChip onClick={() => handleSuggestionClick(t.companyFormationQuery)} disabled={isLoading}>{t.companyFormation}</SuggestionChip>
+                <SuggestionChip onClick={() => handleSuggestionClick(t.culturalGuidelinesQuery)} disabled={isLoading}>{t.culturalGuidelines}</SuggestionChip>
+              </SuggestionRow>
             </WelcomeMessage>
           </EmptyState>
         ) : (
@@ -412,6 +404,7 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
                   message={message} 
                   onPostToCommunity={onPostToCommunity ? handlePostToCommunity : undefined}
                   userQuestion={userQuestion}
+                  alreadyPosted={postedMessageIds.has(message.id)}
                 />
               );
             })}
@@ -423,16 +416,6 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
               </LoadingIndicator>
             )}
 
-            {streamStatus && (
-              <LoadingIndicator>
-                <span>
-                  {streamStatus === 'retrying' 
-                    ? t.connectionRetrying || 'Connection interrupted, retrying…'
-                    : t.connectionFallback || 'Switched to stable mode'}
-                </span>
-              </LoadingIndicator>
-            )}
-            
             <div ref={messagesEndRef} />
           </>
         )}
@@ -441,6 +424,8 @@ export const Chat: React.FC<ChatProps> = ({ sessionId, onPostToCommunity }) => {
       <ChatInput 
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
+        placeholder={''}
+        ghostPlaceholder={typedPlaceholder}
       />
     </ChatContainer>
   );

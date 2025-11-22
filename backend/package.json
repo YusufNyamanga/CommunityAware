@@ -1,7 +1,7 @@
 {
   "name": "umoja-aware-backend",
   "version": "1.0.0",
-  "description": "Backend for Umoja Aware - AI Legal Assistant",
+  "description": "Backend for Umoja-Aware - AI Legal Assistant",
   "main": "dist/app.js",
   "scripts": {
     "start": "node dist/app.js",

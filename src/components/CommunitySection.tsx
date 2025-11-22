@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { X } from 'lucide-react';
 import { mockCommunityPosts, formatTimeAgo, getCategoryEmoji } from '../data/communityData';
-import { CommunityPost, LegalCategory } from '../types';
+import { CommunityPost, LegalCategory, CommunityReply } from '../types';
 import NewPostForm from './NewPostForm';
 
 const CommunityContainer = styled.div`
@@ -11,8 +10,8 @@ const CommunityContainer = styled.div`
   border-radius: 12px;
   padding: 20px;
   margin: 20px 0;
-  max-height: 800px;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
 `;
 
 const Title = styled.h2`
@@ -180,33 +179,51 @@ const NewPostButton = styled.button`
   }
 `;
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: ${props => props.theme.colors.textSecondary};
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${props => props.theme.colors.border};
-    color: ${props => props.theme.colors.text};
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-`;
 
 const HeaderButtons = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+`;
+
+const FilterRow = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+`;
+
+const FilterChip = styled.button<{ $active?: boolean }>`
+  border: 1px solid ${({ theme }) => theme.colors.primary}30;
+  color: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.textSecondary};
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: 14px;
+  height: 28px;
+  padding: 0 10px;
+  cursor: pointer;
+`;
+
+const ReplyForm = styled.form`
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+`;
+
+const ReplyInput = styled.input`
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 6px;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const ReplyButton = styled.button`
+  padding: 8px 12px;
+  border: 1px solid ${({ theme }) => theme.colors.primary};
+  border-radius: 6px;
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
 `;
 
 interface CommunitySectionProps {
@@ -222,9 +239,29 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
     // Initialize from localStorage
     return JSON.parse(localStorage.getItem('liked_posts') || '[]');
   });
+  const [filter, setFilter] = useState<LegalCategory | 'all'>('all');
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [repliesMap, setRepliesMap] = useState<Record<string, CommunityReply[]>>(() => {
+    const raw = localStorage.getItem('community_replies');
+    if (!raw) return {};
+    try {
+      const parsed = JSON.parse(raw);
+      // revive Date
+      Object.keys(parsed).forEach(postId => {
+        parsed[postId] = (parsed[postId] as any[]).map(r => ({
+          ...r,
+          timestamp: new Date(r.timestamp)
+        }));
+      });
+      return parsed;
+    } catch {
+      return {};
+    }
+  });
   
   // Merge additional posts from chat with existing posts
   const allPosts = [...additionalPosts, ...posts];
+  const visiblePosts = filter === 'all' ? allPosts : allPosts.filter(p => p.category === filter);
 
   const toggleAIResponse = (postId: string) => {
     const newExpanded = new Set(expandedPosts);
@@ -265,6 +302,25 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
     }
   };
 
+  const handleReplySubmit = (postId: string) => {
+    const content = (replyDrafts[postId] || '').trim();
+    if (!content) return;
+    const newReply: CommunityReply = {
+      id: `${postId}-r-${Date.now()}`,
+      postId,
+      userName: 'You',
+      content,
+      timestamp: new Date(),
+      isAnonymous: false
+    };
+    const newMap = { ...repliesMap, [postId]: [...(repliesMap[postId] || []), newReply] };
+    setRepliesMap(newMap);
+    localStorage.setItem('community_replies', JSON.stringify(newMap));
+    setReplyDrafts({ ...replyDrafts, [postId]: '' });
+    // increment replies count in posts
+    setPosts(current => current.map(p => p.id === postId ? { ...p, replies: p.replies + 1 } : p));
+  };
+
   const handleNewPost = (postData: {
     content: string;
     category: LegalCategory;
@@ -298,11 +354,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
           <NewPostButton onClick={() => setShowNewPostForm(!showNewPostForm)}>
             {showNewPostForm ? '✖ Cancel' : '➕ New Post'}
           </NewPostButton>
-          {onClose && (
-            <CloseButton onClick={onClose} title="Close Community">
-              <X />
-            </CloseButton>
-          )}
+          
         </HeaderButtons>
       </HeaderRow>
       
@@ -312,8 +364,15 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
           onCancel={() => setShowNewPostForm(false)}
         />
       )}
+      <FilterRow>
+        {(['all','labour-law','company-formation','visa-services','grace-period','lmra','sijilat','general-legal','other'] as const).map(cat => (
+          <FilterChip key={cat} $active={filter===cat} onClick={() => setFilter(cat as any)}>
+            {cat === 'all' ? 'All' : cat.replace('-', ' ')}
+          </FilterChip>
+        ))}
+      </FilterRow>
       
-      {allPosts.map((post: CommunityPost) => (
+      {visiblePosts.map((post: CommunityPost) => (
         <PostCard key={post.id}>
           <PostHeader>
             <UserInfo>
@@ -354,7 +413,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
               >
                 {likedPosts.includes(post.id) ? '❤️' : '👍'} {post.likes}
               </ActionButton>
-              <ActionButton>
+              <ActionButton title="Add a reply">
                 💬 {post.replies}
               </ActionButton>
               {post.aiResponse && (
@@ -364,6 +423,30 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
               )}
             </ActionButtons>
           </PostMeta>
+
+          {/* Replies list */}
+          {(repliesMap[post.id] || []).length > 0 && (
+            <div style={{ marginTop: 8 }}>
+              {(repliesMap[post.id] || []).map(r => (
+                <div key={r.id} style={{ padding: '8px 10px', borderLeft: `3px solid ${'#ccc'}`, background: `${'transparent'}` }}>
+                  <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: 4 }}>
+                    {r.isAnonymous ? 'Anonymous' : r.userName} • {formatTimeAgo(r.timestamp)}
+                  </div>
+                  <div style={{ fontSize: '0.9rem' }}>{r.content}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Inline reply form */}
+          <ReplyForm onSubmit={(e) => { e.preventDefault(); handleReplySubmit(post.id); }}>
+            <ReplyInput
+              value={replyDrafts[post.id] || ''}
+              onChange={(e) => setReplyDrafts({ ...replyDrafts, [post.id]: e.target.value })}
+              placeholder="Write a reply…"
+            />
+            <ReplyButton type="submit">Reply</ReplyButton>
+          </ReplyForm>
         </PostCard>
       ))}
     </CommunityContainer>

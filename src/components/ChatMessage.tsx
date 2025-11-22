@@ -7,6 +7,7 @@ interface ChatMessageProps {
   message: ChatMessageType;
   onPostToCommunity?: (message: ChatMessageType, userQuestion: string) => void;
   userQuestion?: string;
+  alreadyPosted?: boolean;
 }
 
 const MessageContainer = styled.div<{ $isUser: boolean }>`
@@ -306,10 +307,11 @@ const cleanAIResponse = (content: string): string => {
     .trim();
 };
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onPostToCommunity, userQuestion }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onPostToCommunity, userQuestion, alreadyPosted }) => {
   const isUser = message.sender === 'user';
   
   const handlePostToCommunity = () => {
+    if (alreadyPosted) return;
     if (onPostToCommunity && userQuestion && !isUser) {
       onPostToCommunity(message, userQuestion);
     }
@@ -347,9 +349,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onPostToCommu
             <CategoryTag>{message.category.replace('-', ' ')}</CategoryTag>
           )}
           {onPostToCommunity && userQuestion && !isUser && message.content && (
-            <ActionButton onClick={handlePostToCommunity} title="Post this Q&A to Community">
+            <ActionButton onClick={handlePostToCommunity} title="Post this Q&A to Community" disabled={!!alreadyPosted}>
               <Share2 />
-              <span>Post to Community</span>
+              <span>{alreadyPosted ? 'Posted' : 'Post to Community'}</span>
             </ActionButton>
           )}
         </MessageMeta>

@@ -146,6 +146,16 @@ export const TermsContent: React.FC = () => {
           من خلال الوصول إلى واستخدام مجتمع واعي، فإنك تقبل وتوافق على الالتزام بالشروط والأحكام 
           الواردة في هذه الاتفاقية. تنطبق شروط الخدمة هذه على جميع مستخدمي الخدمة.
         </p>
+        <ul>
+          <li><strong>ضرورية للغاية:</strong> مطلوبة لوظائف أساسية مثل التنقل والأمان.</li>
+          <li><strong>الأداء/التحليلات:</strong> تساعدنا على فهم كيفية استخدام الموقع (مثل الصفحات التي تمت زيارتها والمعايير الأساسية) لتحسين خدماتنا.</li>
+          <li><strong>الوظائف:</strong> تتذكر التفضيلات مثل اللغة وإعدادات العرض.</li>
+          <li><strong>الإعلانات/التسويق:</strong> غير مستخدمة افتراضياً. إذا تم تقديمها لاحقاً فستكون اختيارية وتتطلب موافقة.</li>
+        </ul>
+        <p>
+          بشكل افتراضي يتم تفعيل الكوكيز الضرورية فقط. يتم استخدام التحليلات والتخصيص فقط إذا اخترت
+          "قبول جميع الكوكيز". يمكنك سحب أو تغيير موافقتك في أي وقت.
+        </p>
 
         <h3>2. وصف الخدمة</h3>
         <p>
@@ -204,19 +214,19 @@ export const TermsContent: React.FC = () => {
     <>
       <h3>1. Acceptance of Terms</h3>
       <p>
-        By accessing and using Umoja Aware, you accept and agree to be bound by the terms and 
+        By accessing and using Umoja-Aware, you accept and agree to be bound by the terms and 
         provision of this agreement. These Terms of Service apply to all users of the service.
       </p>
 
       <h3>2. Description of Service</h3>
       <p>
-        Umoja Aware is an AI-powered legal assistant platform designed to provide information 
-        about Bahrain legal matters. Our service includes:
+        Umoja-Aware is an AI-powered community awareness assistant platform designed to provide information 
+        about Bahrain community and legal matters. Our service includes:
       </p>
       <ul>
-        <li>AI chat assistant for legal queries</li>
-        <li>Knowledge base of Bahrain labour law</li>
-        <li>Community forum for legal discussions</li>
+        <li>AI chat assistant for community and legal queries</li>
+        <li>Knowledge base of Bahrain labour law and community topics</li>
+        <li>Community forum for discussions</li>
       </ul>
 
       <h3>3. User Responsibilities</h3>
@@ -230,14 +240,14 @@ export const TermsContent: React.FC = () => {
 
       <h3>4. Disclaimer</h3>
       <p>
-        <strong>Important:</strong> Umoja Aware provides general legal information and should not be 
+        <strong>Important:</strong> Umoja-Aware provides general legal information and should not be 
         considered as professional legal advice. Always consult with qualified legal professionals 
         for specific legal matters.
       </p>
 
       <h3>5. Limitation of Liability</h3>
       <p>
-        Umoja Aware shall not be liable for any direct, indirect, incidental, consequential, 
+        Umoja-Aware shall not be liable for any direct, indirect, incidental, consequential, 
         or punitive damages arising from your use of the service.
       </p>
 
@@ -390,8 +400,18 @@ export const PrivacyContent: React.FC = () => {
 
     <h3>5. Cookies and Tracking</h3>
     <p>
-      We use cookies and similar technologies to enhance your experience, analyze traffic, 
-      and personalize content. You can control cookie preferences through our cookie consent banner.
+      We use cookies and similar technologies to operate the site, understand usage, and improve
+      your experience. You can control your preferences via the cookie banner and your browser settings.
+    </p>
+    <ul>
+      <li><strong>Strictly Necessary:</strong> Required for core functionality such as page navigation and security.</li>
+      <li><strong>Performance/Analytics:</strong> Help us understand how the site is used (e.g., pages visited, basic metrics) to improve our services.</li>
+      <li><strong>Functional:</strong> Remember preferences such as language and display settings.</li>
+      <li><strong>Advertising/Marketing:</strong> Not used by default. If introduced, these would be optional and require consent.</li>
+    </ul>
+    <p>
+      By default, only strictly necessary cookies are active. Analytics and personalization are used
+      only if you choose “Accept All Cookies”. You can withdraw or change your consent at any time.
     </p>
 
     <h3>6. Your Rights</h3>
@@ -497,10 +517,10 @@ export const AboutContent: React.FC = () => {
   // Default English content
   return (
   <>
-    <h3>About Umoja Aware</h3>
+    <h3>About Umoja-Aware</h3>
     <p>
-      Umoja Aware is an innovative AI-powered legal assistant platform specifically designed 
-      for the Bahrain community. Our mission is to make legal information accessible, accurate, 
+      Umoja-Aware is an innovative AI-powered community awareness assistant platform specifically designed 
+      for the Bahrain community. Our mission is to make community and legal information accessible, accurate, 
       and easy to understand for everyone.
     </p>
 
@@ -508,8 +528,8 @@ export const AboutContent: React.FC = () => {
     <p>We provide three main services to help you with your legal needs:</p>
     <ul>
       <li>
-        <strong>AI Chat Assistant:</strong> Get instant answers to your legal questions powered 
-        by advanced AI technology and official Bahrain legal sources
+        <strong>AI Chat Assistant:</strong> Get instant answers to your community and legal questions powered 
+        by advanced AI technology and official Bahrain sources
       </li>
       <li>
         <strong>Knowledge Base:</strong> Access comprehensive information about Bahrain labour 
@@ -522,7 +542,7 @@ export const AboutContent: React.FC = () => {
     </ul>
 
     <h3>Our Focus Areas</h3>
-    <p>Umoja Aware specializes in key areas of Bahrain law:</p>
+    <p>Umoja-Aware specializes in key areas of Bahrain law:</p>
     <ul>
       <li>Labour Law and Employee Rights</li>
       <li>Company Formation and Business Registration</li>
@@ -534,7 +554,7 @@ export const AboutContent: React.FC = () => {
 
     <h3>Important Disclaimer</h3>
     <p>
-      <strong>Please Note:</strong> Umoja Aware provides general legal information and guidance 
+      <strong>Please Note:</strong> Umoja-Aware provides general legal information and guidance 
       based on publicly available sources. Our service does not constitute professional legal advice. 
       For specific legal matters, always consult with qualified legal professionals or official 
       government authorities.

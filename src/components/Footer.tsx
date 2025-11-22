@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { ContentModal, TermsContent, PrivacyContent, AboutContent } from './ContentModal';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslations } from '../locales/translations';
 
@@ -46,13 +46,14 @@ const QuickLinks = styled.div`
   }
 `;
 
-const QuickLink = styled.button`
+const QuickLink = styled(Link)`
   background: none;
   border: none;
   color: ${({ theme }) => theme.colors.textSecondary};
   font-size: 0.9rem;
   cursor: pointer;
   transition: color 0.2s ease;
+  text-decoration: none;
   
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
@@ -63,55 +64,26 @@ export const Footer: React.FC = () => {
   const { currentLanguage } = useLanguage();
   const t = useTranslations(currentLanguage);
   const currentYear = new Date().getFullYear();
-  const [activeModal, setActiveModal] = useState<'about' | 'terms' | 'privacy' | null>(null);
-
-  const handleCloseModal = () => {
-    setActiveModal(null);
-  };
-
-  const getModalContent = () => {
-    switch (activeModal) {
-      case 'about':
-        return { title: t.about, content: <AboutContent /> };
-      case 'terms':
-        return { title: t.terms, content: <TermsContent /> };
-      case 'privacy':
-        return { title: t.privacy, content: <PrivacyContent /> };
-      default:
-        return { title: '', content: null };
-    }
-  };
-
-  const modalData = getModalContent();
 
   return (
-    <>
-      <FooterContainer>
-        <FooterContent>
-          <Copyright>
-            {t.copyright.replace('{year}', currentYear.toString())}
-          </Copyright>
-          
-          <QuickLinks>
-            <QuickLink onClick={() => setActiveModal('about')}>
-              {t.about}
-            </QuickLink>
-            <QuickLink onClick={() => setActiveModal('terms')}>
-              {t.terms}
-            </QuickLink>
-            <QuickLink onClick={() => setActiveModal('privacy')}>
-              {t.privacy}
-            </QuickLink>
-          </QuickLinks>
-        </FooterContent>
-      </FooterContainer>
-      
-      <ContentModal
-        show={activeModal !== null}
-        onClose={handleCloseModal}
-        title={modalData.title}
-        content={modalData.content}
-      />
-    </>
+    <FooterContainer>
+      <FooterContent>
+        <Copyright>
+          {t.copyright.replace('{year}', currentYear.toString())}
+        </Copyright>
+        
+        <QuickLinks>
+          <QuickLink to="/about">
+            {t.about}
+          </QuickLink>
+          <QuickLink to="/terms">
+            {t.terms}
+          </QuickLink>
+          <QuickLink to="/privacy">
+            {t.privacy}
+          </QuickLink>
+        </QuickLinks>
+      </FooterContent>
+    </FooterContainer>
   );
 };

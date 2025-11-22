@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-**CommunityAware** (originally "Umoja Aware") is a specialized AI-powered legal assistant designed for the Bahrain community. It provides multilingual legal guidance covering labour law, company formation, visa services, LMRA procedures, and Sijilat registration.
+**CommunityAware** (originally "Umoja-Aware") is a specialized AI-powered legal assistant designed for the Bahrain community. It provides multilingual legal guidance covering labour law, company formation, visa services, LMRA procedures, and Sijilat registration.
 
 ## Development Commands
 

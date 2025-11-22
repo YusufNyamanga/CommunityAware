@@ -4,10 +4,10 @@ import { Globe, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../locales';
 
-const SelectorContainer = styled.div<{ $isRTL: boolean }>`
+const SelectorContainer = styled.div`
   position: relative;
   display: inline-block;
-  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
+  direction: ltr;
 `;
 
 const SelectorButton = styled.button`
@@ -56,22 +56,23 @@ const DropdownOverlay = styled.div<{ $show: boolean }>`
   }
 `;
 
-const DropdownMenu = styled.div<{ $show: boolean; $isRTL: boolean }>`
-  position: absolute;
-  top: 100%;
-  ${props => props.$isRTL ? 'left: 0;' : 'right: 0;'}
-  width: 280px;
+const DropdownMenu = styled.div<{ $show: boolean }>`
+  position: fixed;
+  width: 320px;
   max-width: calc(100vw - 20px);
-  max-height: 300px;
+  max-height: 60vh;
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 99999; /* Much higher z-index to ensure it's above everything */
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* momentum scrolling on iOS */
+  touch-action: pan-y; /* allow finger scroll from any area */
+  overscroll-behavior: contain; /* prevent background scroll chaining */
   display: ${props => props.$show ? 'block' : 'none'};
-  margin-top: 4px;
-  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
+  margin-top: 0;
+  direction: ltr;
   
   /* Mobile-specific positioning fixes */
   @media (max-width: 768px) {
@@ -125,7 +126,7 @@ const SearchInput = styled.input`
   }
 `;
 
-const LanguageOption = styled.button<{ $isSelected: boolean; $isRTL: boolean }>`
+const LanguageOption = styled.button<{ $isSelected: boolean }>`
   width: 100%;
   padding: 12px;
   display: flex;
@@ -135,8 +136,8 @@ const LanguageOption = styled.button<{ $isSelected: boolean; $isRTL: boolean }>`
   background: ${props => props.$isSelected ? props.theme.colors.primary + '20' : 'transparent'};
   cursor: pointer;
   transition: background-color 0.2s ease;
-  text-align: ${props => props.$isRTL ? 'right' : 'left'};
-  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
+  text-align: left;
+  direction: ltr;
 
   &:hover {
     background: ${({ theme }) => theme.colors.primary}10;
@@ -147,15 +148,25 @@ const LanguageOption = styled.button<{ $isSelected: boolean; $isRTL: boolean }>`
   }
 `;
 
+const GroupHeader = styled.div`
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+`;
+
 const LanguageFlag = styled.span`
   font-size: 1.2rem;
   min-width: 24px;
 `;
 
-const LanguageInfo = styled.div<{ $isRTL: boolean }>`
+const LanguageInfo = styled.div`
   flex: 1;
-  text-align: ${props => props.$isRTL ? 'right' : 'left'};
-  direction: ${props => props.$isRTL ? 'rtl' : 'ltr'};
+  text-align: left;
+  direction: ltr;
 `;
 
 const LanguageName = styled.div`
@@ -183,28 +194,82 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const selectorRef = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos] = useState<{left: number; top: number}>({ left: 10, top: 80 });
+  const [recent, setRecent] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('recent_languages');
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  });
 
   const currentLangInfo = SUPPORTED_LANGUAGES[currentLanguage];
 
-  // Filter languages based on search term
-  const filteredLanguages = Object.entries(SUPPORTED_LANGUAGES).filter(([code, info]) =>
-    info.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    info.nativeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Define language groups
+  const PRIMARY: SupportedLanguage[] = ['en', 'zh'];
+  const BETA: SupportedLanguage[] = ['ar', 'es', 'fr', 'pt', 'ru', 'tr', 'id', 'ms', 'th', 'hi'];
+  const EXPERIMENTAL: SupportedLanguage[] = ['ur', 'bn', 'ta', 'te', 'ml', 'pa', 'ne', 'am', 'sw', 'lg', 'tl', 'om', 'pcm'];
+
+  const matches = (code: SupportedLanguage) => {
+    const info = SUPPORTED_LANGUAGES[code];
+    const q = searchTerm.toLowerCase();
+    return (
+      info.name.toLowerCase().includes(q) ||
+      info.nativeName.toLowerCase().includes(q) ||
+      code.toLowerCase().includes(q)
+    );
+  };
 
   const handleLanguageSelect = (langCode: SupportedLanguage) => {
     setLanguage(langCode);
     setIsOpen(false);
     setSearchTerm('');
+    // Update recent languages
+    const updated = [langCode, ...recent.filter(c => c !== langCode)].slice(0, 3);
+    setRecent(updated);
+    localStorage.setItem('recent_languages', JSON.stringify(updated));
   };
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
       setSearchTerm('');
+      const rect = selectorRef.current?.getBoundingClientRect();
+      const menuWidth = 320;
+      const padding = 10;
+      const desiredTop = (rect?.bottom || 80) + 8;
+      let left = rect?.left || 10;
+      const maxLeft = (window.innerWidth || 360) - menuWidth - padding;
+      const minLeft = padding;
+      left = Math.max(minLeft, Math.min(left, maxLeft));
+      const menuHeight = Math.min((window.innerHeight || 600) * 0.6, 500);
+      let top = desiredTop;
+      if (top + menuHeight + padding > (window.innerHeight || 600)) {
+        top = Math.max(padding, (rect?.top || 40) - menuHeight - 8);
+      }
+      top = Math.max(padding, Math.min(top, (window.innerHeight || 600) - menuHeight - padding));
+      setMenuPos({ left, top });
     }
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const rect = selectorRef.current?.getBoundingClientRect();
+    const menuWidth = 320;
+    const padding = 10;
+    const desiredTop = (rect?.bottom || 80) + 8;
+    let left = rect?.left || 10;
+    const maxLeft = (window.innerWidth || 360) - menuWidth - padding;
+    const minLeft = padding;
+    left = Math.max(minLeft, Math.min(left, maxLeft));
+    const menuHeight = Math.min((window.innerHeight || 600) * 0.6, 500);
+    let top = desiredTop;
+    if (top + menuHeight + padding > (window.innerHeight || 600)) {
+      top = Math.max(padding, (rect?.top || 40) - menuHeight - 8);
+    }
+    top = Math.max(padding, Math.min(top, (window.innerHeight || 600) - menuHeight - padding));
+    setMenuPos({ left, top });
+  }, [isOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -225,7 +290,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   }, [isOpen]);
 
   return (
-    <SelectorContainer ref={selectorRef} $isRTL={isRTL}>
+    <SelectorContainer ref={selectorRef}>
       <SelectorButton onClick={handleToggle} title="Select Language">
         <Globe />
         {!compact && showLabel && <span>{currentLangInfo.nativeName}</span>}
@@ -236,7 +301,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       </SelectorButton>
 
       <DropdownOverlay $show={isOpen} onClick={() => setIsOpen(false)} />
-      <DropdownMenu $show={isOpen} $isRTL={isRTL}>
+      <DropdownMenu $show={isOpen} style={{ left: menuPos.left, top: menuPos.top }} aria-expanded={isOpen} role="listbox">
         <SearchInput
           type="text"
           placeholder="Search languages..."
@@ -244,22 +309,85 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           onChange={(e) => setSearchTerm(e.target.value)}
           autoFocus
         />
+        {recent.length > 0 && (
+          <div style={{ padding: '8px 12px', display: 'flex', gap: 8 }}>
+            {recent.map(code => {
+              const langCode = code as SupportedLanguage;
+              const langInfo = SUPPORTED_LANGUAGES[langCode];
+              if (!langInfo) return null;
+              return (
+                <button key={code} onClick={() => handleLanguageSelect(langCode)} style={{ border: '1px solid #ddd', borderRadius: 12, padding: '4px 8px', cursor: 'pointer' }}>
+                  {langInfo.nativeName || code}
+                </button>
+              );
+            })}
+          </div>
+        )}
         
-        {filteredLanguages.map(([code, info]) => (
-          <LanguageOption
-            key={code}
-            $isSelected={code === currentLanguage}
-                $isRTL={isRTL}
-            onClick={() => handleLanguageSelect(code as SupportedLanguage)}
-          >
-            <LanguageInfo $isRTL={isRTL}>
-              <LanguageName>{info.name}</LanguageName>
-              <NativeName>{info.nativeName}</NativeName>
-            </LanguageInfo>
-          </LanguageOption>
-        ))}
+        {/* Primary */}
+        {PRIMARY.filter(matches).length > 0 && (
+          <GroupHeader>Primary</GroupHeader>
+        )}
+        {PRIMARY.filter(matches).map(code => {
+          const info = SUPPORTED_LANGUAGES[code];
+          return (
+            <LanguageOption
+              key={code}
+              $isSelected={code === currentLanguage}
+              onClick={() => handleLanguageSelect(code)}
+              aria-selected={code === currentLanguage}
+            >
+              <LanguageInfo>
+                <LanguageName>{info.name}</LanguageName>
+                <NativeName>{info.nativeName}</NativeName>
+              </LanguageInfo>
+            </LanguageOption>
+          );
+        })}
+
+        {/* Beta */}
+        {BETA.filter(matches).length > 0 && (
+          <GroupHeader>Beta</GroupHeader>
+        )}
+        {BETA.filter(matches).map(code => {
+          const info = SUPPORTED_LANGUAGES[code];
+          return (
+            <LanguageOption
+              key={code}
+              $isSelected={code === currentLanguage}
+              onClick={() => handleLanguageSelect(code)}
+              aria-selected={code === currentLanguage}
+            >
+              <LanguageInfo>
+                <LanguageName>{info.name}</LanguageName>
+                <NativeName>{info.nativeName}</NativeName>
+              </LanguageInfo>
+            </LanguageOption>
+          );
+        })}
+
+        {/* Experimental */}
+        {EXPERIMENTAL.filter(matches).length > 0 && (
+          <GroupHeader>Experimental</GroupHeader>
+        )}
+        {EXPERIMENTAL.filter(matches).map(code => {
+          const info = SUPPORTED_LANGUAGES[code];
+          return (
+            <LanguageOption
+              key={code}
+              $isSelected={code === currentLanguage}
+              onClick={() => handleLanguageSelect(code)}
+              aria-selected={code === currentLanguage}
+            >
+              <LanguageInfo>
+                <LanguageName>{info.name}</LanguageName>
+                <NativeName>{info.nativeName}</NativeName>
+              </LanguageInfo>
+            </LanguageOption>
+          );
+        })}
         
-        {filteredLanguages.length === 0 && (
+        {PRIMARY.filter(matches).length + BETA.filter(matches).length + EXPERIMENTAL.filter(matches).length === 0 && (
           <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
             No languages found
           </div>

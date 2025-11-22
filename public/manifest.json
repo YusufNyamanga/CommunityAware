@@ -1,16 +1,31 @@
 {
-  "short_name": "Umoja Aware",
-  "name": "Umoja Aware - AI Legal Assistant for Bahrain",
+  "short_name": "Umoja-Aware",
+  "name": "Umoja-Aware",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "logo192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#FF8C00",
   "background_color": "#000000",
-  "description": "AI-powered legal assistant providing guidance on Bahrain law, labour issues, company formation, and visa services."
+  "description": "AI-powered community awareness assistant providing guidance on Bahrain law, labour issues, visas, and local updates.",
+  "scope": ".",
+  "orientation": "portrait-primary",
+  "categories": ["legal", "productivity", "ai"],
+  "lang": "en",
+  "dir": "ltr"
 }

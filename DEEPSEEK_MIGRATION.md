@@ -1,125 +1,38 @@
-# DeepSeek API Migration Guide
+# DeepSeek Integration Guide (Backend‑Only)
 
 ## Overview
 
-The CommunityAware application has been migrated from Qwen AI to DeepSeek AI for better multilingual translations and improved cultural awareness.
+Umoja‑Aware uses backend‑only AI integration. The frontend never calls external AI or stores AI keys. Approved providers are DeepSeek and Moonshot (Kimi).
 
-## Key Improvements with DeepSeek
+## Keys and Environment
 
-### 🌍 Better Translations
-- **Native-level accuracy**: DeepSeek provides more natural, culturally-aware translations
-- **Context preservation**: Maintains legal terminology precision across all supported languages
-- **Grammar excellence**: Superior grammar and sentence structure in target languages
+Set keys in `backend/.env`:
 
-### 🎯 Cultural Sensitivity
-- Enhanced cultural context for business communications
-- Appropriate formality levels for different languages
-- Cultural greetings and expressions that feel natural to native speakers
-
-### 📝 Enhanced Language Instructions
-- Stricter language consistency (no English mixing in non-English responses)
-- Language-specific business terminology
-- Proper script usage (Arabic, Chinese, Hindi, etc.)
-
-## Setup Instructions
-
-### 1. Get Your DeepSeek API Key
-
-1. Visit [DeepSeek Platform](https://platform.deepseek.com/api_keys)
-2. Sign up or log in to your account
-3. Create a new API key
-4. Copy your API key
-
-### 2. Update Environment Configuration
-
-1. Open your `.env` file in the project root
-2. Replace `your_deepseek_api_key_here` with your actual API key:
-
-```env
-# DeepSeek API Configuration (Better translations)
-REACT_APP_DEEPSEEK_API_KEY=sk-your-actual-deepseek-api-key-here
-REACT_APP_DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
+```
+DEEPSEEK_API_KEY=sk-your-deepseek-key
+DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
+MOONSHOT_API_KEY=sk-your-kimi-key    # optional; zh/zh‑tw only
+MOONSHOT_API_URL=https://api.moonshot.cn/v1/chat/completions
 ```
 
-### 3. Restart Your Application
+## Provider Selection
 
-```bash
-npm start
-```
+- DeepSeek handles all languages by default
+- Moonshot (Kimi) is used for Chinese (zh/zh‑tw) when a valid key is present
 
-## Migration Details
+## Temperature Tuning
 
-### Files Modified
+- Legal topics use low temperatures for factual accuracy
+- Typical ranges: 0.35–0.4 depending on category
 
-1. **New Service**: `src/services/deepseekService.ts`
-   - Complete DeepSeek API integration
-   - Enhanced multilingual prompts
-   - Improved cultural instructions
+## How Requests Flow
 
-2. **Updated Component**: `src/components/Chat.tsx`
-   - Switched from `qwenService` to `deepseekService`
-   - All functionality preserved
+1. Frontend sends chat requests to backend `/api/chat`
+2. Backend selects provider and attaches official FAQ context
+3. Responses stream or fall back to non‑stream mode
+4. If providers are unreachable, backend or client returns a query‑matched offline answer
 
-3. **Environment**: `.env`
-   - Added DeepSeek configuration
-   - Kept legacy Qwen config for reference
+## Notes
 
-### Languages with Enhanced Support
-
-All supported languages now have improved cultural awareness:
-- **Arabic**: Gulf Arab cultural context, proper Fusha usage
-- **Chinese**: Business terminology, cultural communication style
-- **Spanish**: Latin American/Spanish business customs
-- **French**: Francophone cultural values, formal/informal register
-- **Portuguese**: Brazilian/Portuguese business context
-- **Russian**: Proper declensions, business terminology
-- **Hindi**: Devanagari script, Indian business customs
-- **And 15+ other languages with native-level improvements**
-
-## API Comparison
-
-| Feature | Qwen | DeepSeek |
-|---------|------|----------|
-| Translation Quality | Good | Excellent |
-| Cultural Awareness | Basic | Advanced |
-| Language Consistency | Moderate | Strict |
-| Grammar Accuracy | Good | Superior |
-| Business Context | General | Specialized |
-| Cost Efficiency | Good | Competitive |
-
-## Testing Your Migration
-
-1. **Switch Languages**: Test the language selector with various languages
-2. **Ask Questions**: Try legal questions in non-English languages
-3. **Check Responses**: Verify responses are entirely in the selected language
-4. **Cultural Context**: Notice more natural, culturally-appropriate responses
-
-## Fallback Plan
-
-If you need to revert to Qwen temporarily:
-
-1. In `src/components/Chat.tsx`, change:
-   ```typescript
-   import { deepseekService } from '../services/deepseekService';
-   ```
-   back to:
-   ```typescript
-   import { qwenService } from '../services/qwenService';
-   ```
-
-2. Update all `deepseekService` calls back to `qwenService`
-
-## Support
-
-The legacy Qwen service remains available in the codebase for reference. The migration maintains all existing functionality while significantly improving translation quality and cultural awareness.
-
-## Benefits Summary
-
-✅ **Better translations** - More natural, native-level responses  
-✅ **Cultural awareness** - Context-appropriate business communication  
-✅ **Language consistency** - No English mixing in non-English responses  
-✅ **Improved grammar** - Superior sentence structure and flow  
-✅ **Professional tone** - Appropriate formality for legal/business context  
-✅ **RTL support** - Maintained excellent Arabic/Hebrew support  
-
-Your CommunityAware application now provides a significantly better multilingual experience for all users!
+- No frontend AI keys or direct provider calls
+- Only DeepSeek and Moonshot (Kimi) are supported

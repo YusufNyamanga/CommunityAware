@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { Send, Paperclip } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslations } from '../locales/translations';
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, category?: any) => void;
   isLoading?: boolean;
   placeholder?: string;
+  ghostPlaceholder?: string;
 }
 
 const InputContainer = styled.div`
@@ -45,11 +46,80 @@ const InputWrapper = styled.div`
   }
 `;
 
-const TextArea = styled.textarea`
+const GhostPlaceholder = styled.div<{ $rtl: boolean }>`
+  position: absolute;
+  left: ${({ $rtl }) => ($rtl ? 'auto' : '1rem')};
+  right: ${({ $rtl }) => ($rtl ? '1rem' : 'auto')};
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${({ theme }) => theme.colors.textSecondary};
+  opacity: 0.8;
+  pointer-events: none;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  z-index: 1;
+  max-width: calc(100% - 4rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: ${({ $rtl }) => ($rtl ? 'right' : 'left')};
+  direction: ${({ $rtl }) => ($rtl ? 'rtl' : 'ltr')};
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    max-width: calc(100% - 3.5rem);
+  }
+`;
+
+const BarTop = styled.div`
+  position: absolute;
+  top: -2.25rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+`;
+
+const SuggestionRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+`;
+
+const SuggestionChip = styled.button`
+  border: 1px solid ${({ theme }) => theme.colors.primary}30;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: 14px;
+  height: 28px;
+  padding: 0 10px;
+  cursor: pointer;
+  white-space: nowrap;
+`;
+
+const ClearButton = styled.button`
+  height: 32px;
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.primary}30;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  padding: 0 0.75rem;
+`;
+
+const HelperHint = styled.span`
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+const TextArea = styled.textarea<{ $rtl: boolean }>`
   flex: 1;
   min-height: 50px;
   max-height: 120px;
-  padding: 0.875rem 1rem;
+  padding: ${({ $rtl }) => $rtl ? '0.875rem 1rem 0.875rem 2.5rem' : '0.875rem 2.5rem 0.875rem 1rem'};
   border: none;
   outline: none;
   background: transparent;
@@ -58,9 +128,21 @@ const TextArea = styled.textarea`
   line-height: 1.5;
   resize: none;
   font-family: inherit;
+  transition: opacity 0.3s ease;
+  position: relative;
+  z-index: 0;
+  text-align: ${({ $rtl }) => ($rtl ? 'right' : 'left')};
+  direction: ${({ $rtl }) => ($rtl ? 'rtl' : 'ltr')};
   
   &::placeholder {
     color: ${({ theme }) => theme.colors.textSecondary};
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    font-size: 0.95rem;
+  }
+  
+  &:focus-visible {
+    outline: none;
   }
   
   /* Hide scrollbar but keep functionality */
@@ -72,82 +154,47 @@ const TextArea = styled.textarea`
   }
 `;
 
-const AttachButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 50%;
-  margin: 0.25rem 0.5rem 0.25rem 0;
-  
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => theme.colors.primary}10;
-  }
-  
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-`;
 
-const SendButton = styled.button<{ $disabled: boolean }>`
+const SendButton = styled.button<{ $disabled: boolean; $rtl: boolean }>`
+  position: absolute;
+  right: ${({ $rtl }) => ($rtl ? 'auto' : '8px')};
+  left: ${({ $rtl }) => ($rtl ? '8px' : 'auto')};
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
+  width: 32px;
+  height: 32px;
   border: none;
   border-radius: 50%;
   background: ${({ $disabled, theme }) => 
     $disabled 
       ? theme.colors.textSecondary + '40'
-      : `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`
+      : theme.colors.primary
   };
-  color: ${({ theme }) => theme.isDark ? '#000' : '#fff'};
-  cursor: ${({ $disabled }) => $disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.3s ease;
-  /* Better touch target for mobile */
-  min-width: 50px;
-  min-height: 50px;
+  color: ${({ theme }) => (theme.isDark ? '#000' : '#fff')};
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
+  transition: opacity 0.2s ease, transform 0.1s ease;
   
   &:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px ${({ theme }) => theme.colors.primary}40;
+    transform: translateY(-1px);
   }
   
   &:active:not(:disabled) {
-    transform: scale(0.95);
+    transform: translateY(0);
   }
   
   svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  @media (max-width: 480px) {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    
-    svg {
-      width: 18px;
-      height: 18px;
-    }
+    width: 14px;
+    height: 14px;
   }
 `;
 
 const CharacterCount = styled.span<{ $isNearLimit: boolean }>`
   position: absolute;
   bottom: -1.5rem;
-  right: 0.5rem;
+  right: 3.5rem;
   font-size: 0.75rem;
   color: ${({ $isNearLimit, theme }) => 
     $isNearLimit ? theme.colors.warning : theme.colors.textSecondary
@@ -157,15 +204,16 @@ const CharacterCount = styled.span<{ $isNearLimit: boolean }>`
 export const ChatInput: React.FC<ChatInputProps> = ({ 
   onSendMessage, 
   isLoading = false,
-  placeholder
+  placeholder,
+  ghostPlaceholder
 }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { currentLanguage } = useLanguage();
+  const { currentLanguage, isRTL } = useLanguage();
   const t = useTranslations(currentLanguage);
   const maxLength = 1000;
   
-  const defaultPlaceholder = placeholder || t.typeYourMessage;
+  const defaultPlaceholder = placeholder ?? t.typeYourMessage;
 
   const handleSubmit = () => {
     const trimmedMessage = message.trim();
@@ -206,7 +254,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
     <InputContainer>
+      
       <InputWrapper>
+        {message.length === 0 && ghostPlaceholder && (
+          <GhostPlaceholder $rtl={isRTL}>{ghostPlaceholder}</GhostPlaceholder>
+        )}
         <TextArea
           ref={textareaRef}
           value={message}
@@ -214,29 +266,23 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           onKeyDown={handleKeyDown}
           placeholder={defaultPlaceholder}
           disabled={isLoading}
+          $rtl={isRTL}
         />
-        <AttachButton 
-          type="button"
-          title="Attach files (Coming soon)"
-          disabled
+        <SendButton 
+          onClick={handleSubmit}
+          $disabled={!canSend}
+          $rtl={isRTL}
+          disabled={!canSend}
+          title={canSend ? t.send : t.typeYourMessage}
         >
-          <Paperclip />
-        </AttachButton>
+          <ArrowUp />
+        </SendButton>
         {message.length > 0 && (
           <CharacterCount $isNearLimit={isNearLimit}>
             {message.length}/{maxLength}
           </CharacterCount>
         )}
       </InputWrapper>
-      
-      <SendButton 
-        onClick={handleSubmit}
-        $disabled={!canSend}
-        disabled={!canSend}
-        title={canSend ? t.send : t.typeYourMessage}
-      >
-        <Send />
-      </SendButton>
     </InputContainer>
   );
 };

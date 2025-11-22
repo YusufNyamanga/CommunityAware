@@ -2,7 +2,6 @@
 export const SUPPORTED_LANGUAGES = {
   'en': { name: 'English', nativeName: 'English' },
   'zh': { name: 'Chinese (Simplified)', nativeName: '简体中文' },
-  'zh-tw': { name: 'Chinese (Traditional)', nativeName: '繁體中文' },
   'ar': { name: 'Arabic', nativeName: 'العربية' },
   'es': { name: 'Spanish', nativeName: 'Español' },
   'fr': { name: 'French', nativeName: 'Français' },
@@ -15,16 +14,17 @@ export const SUPPORTED_LANGUAGES = {
   'tr': { name: 'Turkish', nativeName: 'Türkçe' },
   'ur': { name: 'Urdu', nativeName: 'اردو' },
   'bn': { name: 'Bengali', nativeName: 'বাংলা' },
-  'ta': { name: 'Tamil', nativeName: 'தமिழ்' },
+  'ta': { name: 'Tamil', nativeName: 'தமிழ்' },
   'te': { name: 'Telugu', nativeName: 'తెలుగు' },
   'ml': { name: 'Malayalam', nativeName: 'മലയാളം' },
   'pa': { name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
   'ne': { name: 'Nepali', nativeName: 'नेपाली' },
   'am': { name: 'Amharic', nativeName: 'አማርኛ' },
   'sw': { name: 'Swahili', nativeName: 'Kiswahili' },
-  'yo': { name: 'Yoruba', nativeName: 'Yorùbá' },
   'lg': { name: 'Luganda', nativeName: 'Luganda' },
   'tl': { name: 'Tagalog', nativeName: 'Tagalog' },
+  'om': { name: 'Oromo', nativeName: 'Afaan Oromoo' },
+  'pcm': { name: 'Pidgin (West African)', nativeName: 'Nigerian Pidgin' },
 } as const;
 
 export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES;
@@ -48,9 +48,6 @@ export const getBrowserLanguage = (): SupportedLanguage => {
   }
   
   // Special cases for Chinese
-  if (browserLang.includes('zh-tw') || browserLang.includes('zh-hk')) {
-    return 'zh-tw';
-  }
   if (browserLang.includes('zh')) {
     return 'zh';
   }

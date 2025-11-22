@@ -1,0 +1,12 @@
+# Simple PNG Icon Generator
+
+Since creating actual PNG files programmatically is complex, here's a simple approach using online tools or the provided SVG files.
+
+## Quick Solution:
+1. Use the SVG files created in `public/logo192.svg` and `public/logo512.svg`
+2. Convert them to PNG using any online converter
+3. Save as `public/logo192.png` and `public/logo512.png`
+
+## For now, the app will work without the PNG icons, but they are recommended for proper PWA functionality.
+
+The service worker and manifest are properly configured. The app should be installable once the PNG icons are added.

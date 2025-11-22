@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Sun, Moon, Menu, X, Plus } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslations } from '../locales/translations';
@@ -11,13 +11,19 @@ const HeaderContainer = styled.header`
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 3rem;
-  background-color: ${({ theme }) => theme.colors.surface};
+  background: linear-gradient(180deg, ${({ theme }) => theme.colors.surface}CC, ${({ theme }) => theme.colors.surface}99);
   border-bottom: 1px solid ${({ theme }) => theme.colors.primary}20;
-  backdrop-filter: blur(10px);
-  position: sticky;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px ${({ theme }) => theme.colors.primary}10;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
   min-height: 85px;
+  padding-top: env(safe-area-inset-top);
   
   /* Extra large screens get even more padding */
   @media (min-width: 1400px) {
@@ -69,10 +75,13 @@ const LogoText = styled.div`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: 2.3rem;
   line-height: 1.1;
   margin: 0;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
   
   /* Extra large screens get bigger logo */
   @media (min-width: 1400px) {
@@ -86,11 +95,11 @@ const LogoText = styled.div`
   
   /* Mobile screens - larger since no tagline */
   @media (max-width: 768px) {
-    font-size: 2.2rem;
+    font-size: 1.9rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 2rem;
+    font-size: 1.7rem;
   }
 `;
 
@@ -119,6 +128,39 @@ const Controls = styled.div`
   @media (max-width: 768px) {
     display: none;
   }
+`;
+
+const MobileActions = styled.div`
+  width: 44px;
+  height: 44px;
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const NewChatButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid ${({ theme }) => theme.colors.primary}30;
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.primary};
+    color: ${({ theme }) => theme.isDark ? '#000' : '#fff'};
+    transform: translateY(-1px);
+  }
+
+  svg { width: 18px; height: 18px; }
 `;
 
 const ThemeToggle = styled.button`
@@ -165,6 +207,7 @@ const HamburgerButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid ${({ theme }) => theme.colors.border};
+  margin-left: env(safe-area-inset-left);
   
   &:hover {
     background-color: ${({ theme }) => theme.colors.primary};
@@ -196,7 +239,7 @@ const MenuPanel = styled.div<{ $isOpen: boolean }>`
   top: 0;
   left: ${props => props.$isOpen ? '0' : '-320px'};
   width: 300px;
-  height: 100vh;
+  height: 100dvh;
   background: ${({ theme }) => theme.colors.surface};
   border-right: 1px solid ${({ theme }) => theme.colors.border};
   z-index: 300;
@@ -300,22 +343,27 @@ const MenuItem = styled.button`
   }
 `;
 
-type ActiveTab = 'chat' | 'knowledge' | 'community';
+type ActiveTab = 'chat' | 'knowledge' | 'community' | 'about' | 'terms' | 'privacy';
 
 interface HeaderProps {
   activeTab: ActiveTab;
   onTabChange: (tab: ActiveTab) => void;
+  onNewChat?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
+export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onNewChat }) => {
   const { isDark, toggleTheme } = useTheme();
   const { currentLanguage } = useLanguage();
   const t = useTranslations(currentLanguage);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogoClick = () => {
-    // Reload the page to reset the chat
-    window.location.reload();
+    onTabChange('chat');
+  };
+
+  const handleNewChat = () => {
+    onTabChange('chat');
+    onNewChat?.();
   };
 
   const handleMenuItemClick = (tab: ActiveTab) => {
@@ -344,13 +392,15 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
           transform: 'translateX(-50%)'
         }}>
           <Logo onClick={handleLogoClick}>
-            <LogoText>Umoja Aware</LogoText>
+            <LogoText>Umoja-Aware</LogoText>
           </Logo>
           <TagLine>AI Community Awareness Assistant</TagLine>
         </div>
         
         <Controls>
-          <LanguageSelector />
+          <NewChatButton onClick={handleNewChat} title="New chat" aria-label="New chat">
+            <Plus />
+          </NewChatButton>
           <ThemeToggle 
             onClick={toggleTheme}
             title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
@@ -359,9 +409,11 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
             {isDark ? <Sun /> : <Moon />}
           </ThemeToggle>
         </Controls>
-        
-        {/* Invisible spacer to balance hamburger button on mobile */}
-        <div style={{ width: '44px', height: '44px', visibility: 'hidden' }} className="mobile-only" />
+        <MobileActions>
+          <NewChatButton onClick={handleNewChat} title="New chat" aria-label="New chat">
+            <Plus />
+          </NewChatButton>
+        </MobileActions>
       </HeaderContainer>
 
       {/* Menu Overlay */}
@@ -388,14 +440,18 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
             <MenuItem onClick={() => handleMenuItemClick('community')}>
               🌟 {t.community}
             </MenuItem>
+            <MenuItem onClick={() => window.location.assign('/calculators')}>
+              🧮 Calculators
+            </MenuItem>
           </MenuSection>
-          
           <MenuSection>
             <SectionTitle>Language</SectionTitle>
             <div style={{ padding: '12px 20px' }}>
               <LanguageSelector />
             </div>
           </MenuSection>
+          
+          
           
           <MenuSection>
             <SectionTitle>Settings</SectionTitle>
@@ -406,17 +462,21 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
           
           <MenuSection>
             <SectionTitle>Information</SectionTitle>
-            <MenuItem onClick={closeMenu}>
-              📖 About
+            <MenuItem onClick={() => handleMenuItemClick('about')}>
+              📖 {t.about}
             </MenuItem>
-            <MenuItem onClick={closeMenu}>
-              📜 Terms of Service
+            <MenuItem onClick={() => handleMenuItemClick('terms')}>
+              📜 {t.terms}
             </MenuItem>
-            <MenuItem onClick={closeMenu}>
-              🔒 Privacy Policy
+            <MenuItem onClick={() => handleMenuItemClick('privacy')}>
+              🔒 {t.privacy}
             </MenuItem>
           </MenuSection>
+
         </MenuContent>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(0,0,0,0.1)', color: '#888', fontSize: '0.8rem' }}>
+          {t.copyright.replace('{year}', new Date().getFullYear().toString())}
+        </div>
       </MenuPanel>
     </>
   );

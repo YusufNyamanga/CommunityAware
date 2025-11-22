@@ -1,162 +1,106 @@
-# Umoja Aware - AI Legal Assistant for Bahrain
+# Umoja-Aware – AI Legal Assistant for Bahrain
 
-Umoja Aware is a specialized AI-powered legal assistant designed to help the Bahrain community with various legal queries, including labour law, company formation, visa services, and more.
+Umoja-Aware is a specialized AI assistant focused on Bahrain legal topics. The AI layer runs strictly in the backend and proxies all requests to approved providers.
+
+## Core Setup
+
+- Backend AI providers: DeepSeek and Moonshot (Kimi) only
+- Frontend has no AI keys and never calls external AI directly
+- All chat requests go through the backend at `/api/chat` (and `/api/chat/stream` in dev)
 
 ## Features
 
-- **AI-Powered Legal Assistance**: Leverages Qwen API for intelligent responses to legal queries
-- **Specialized Knowledge**: Focused on Bahrain legal system including:
-  - Labour law and employee rights
-  - Company formation and business registration
-  - Visa services and immigration
-  - LMRA (Labour Market Regulatory Authority) procedures
-  - Sijilat registration processes
-  - Grace period extensions
-- **Modern UI**: Dark/light mode with crystal clear design inspired by Rust applications
-- **Interactive Chat Interface**: Real-time conversation with AI assistant
-- **Category Detection**: Automatically categorizes queries for better responses
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- AI legal assistance (labour law, company formation, visa services, LMRA, Sijilat)
+- Category detection with tailored prompts
+- Query‑matched offline fallback responses when providers are unreachable
+- Modern responsive UI with minimalist chat and animated CTA placeholder
 
-## Technologies Used
+## Tech Stack
 
-- **Frontend**: React 18 with TypeScript
-- **Styling**: Styled Components with custom theme system
-- **Icons**: Lucide React
-- **API**: Axios for HTTP requests
-- **AI Model**: Qwen API for natural language processing
+- Frontend: React 18 + TypeScript, Styled Components
+- Backend: Node.js + TypeScript, Express, Axios
+- AI Providers: DeepSeek, Moonshot (Kimi)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 16 or higher
-- npm or yarn package manager
+- Node.js 18+
+- npm
 
-### Installation
+### Install
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd umoja-aware
-   ```
+```bash
+git clone <repository-url>
+cd UmojaAware
+npm install
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Configure Backend Environment
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit the `.env` file and add your Qwen API key:
-   ```
-   REACT_APP_QWEN_API_KEY=your_qwen_api_key_here
-   ```
+Create `backend/.env` from `backend/.env.example` and set keys:
 
-4. Start the development server:
-   ```bash
-   npm start
-   ```
+```
+PORT=5000
+DEEPSEEK_API_KEY=sk-your-deepseek-key
+DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
+MOONSHOT_API_KEY=sk-your-kimi-key    # optional; required for zh/zh‑tw
+MOONSHOT_API_URL=https://api.moonshot.cn/v1/chat/completions
+JWT_SECRET=your_jwt_secret_here
+CORS_ORIGIN=http://localhost:3001
+```
 
-5. Open [http://localhost:3000](http://localhost:3000) to view the application.
+### Run
 
-## Available Scripts
+Start backend:
 
-- `npm start` - Runs the app in development mode
-- `npm build` - Builds the app for production
-- `npm test` - Launches the test runner
-- `npm eject` - Ejects from Create React App (not recommended)
+```bash
+cd backend
+npm run dev
+```
 
-## Configuration
+Start frontend (dev):
 
-### Qwen API Setup
+```bash
+$env:PORT=3001; npm start
+```
 
-1. Visit [Dashscope Console](https://dashscope.console.aliyun.com/)
-2. Create an account or sign in
-3. Generate an API key
-4. Add the API key to your `.env` file
-
-### Theme Customization
-
-The application supports both dark and light modes. You can customize the theme colors in `src/styles/theme.ts`.
+Open `http://localhost:3001`.
 
 ## Project Structure
 
 ```
-src/
-├── components/          # React components
-│   ├── Header.tsx
-│   ├── Chat.tsx
-│   ├── ChatMessage.tsx
-│   └── ChatInput.tsx
-├── hooks/              # Custom React hooks
-│   └── useTheme.tsx
-├── services/           # API services
-│   └── qwenService.ts
-├── styles/             # Styling and themes
-│   ├── theme.ts
-│   └── GlobalStyles.ts
-├── types/              # TypeScript type definitions
-│   └── index.ts
-├── utils/              # Utility functions
-├── App.tsx             # Main App component
-└── index.tsx           # Entry point
+backend/
+  src/
+    controllers/
+    services/
+    app.ts
+frontend (root)/
+  src/
+    components/
+    services/
+    AppWithRouter.tsx
 ```
 
-## Legal Categories Supported
+## AI Configuration Policy
 
-- **Labour Law**: Employee rights, working hours, salary disputes
-- **Company Formation**: Business registration, licensing through Sijilat
-- **Visa Services**: Tourist, business, and residence visas
-- **LMRA Services**: Work permits, labour market regulations
-- **Grace Period Extensions**: Visa extensions and renewals
-- **General Legal**: Various legal matters in Bahrain
+- Only DeepSeek and Moonshot (Kimi) are supported
+- Provider selection: Kimi for zh/zh‑tw when a valid key is present; otherwise DeepSeek
+- Temperatures tuned for legal accuracy (0.35–0.4) per category
+- Frontend must not include AI credentials or call providers directly
 
-## Development Notes
+## Notes
 
-- The application defaults to dark mode as requested
-- API calls are handled securely (in production, consider implementing a backend proxy)
-- The UI is designed to be highly interactive with smooth animations
-- Color scheme uses black background with dark orange accents
+- Offline fallback is query‑aware and category‑specific
+- Idle chat layout is responsive; welcome screen does not scroll
+- Main screen footer removed; sidebar footer retained
 
-## Contributing
+## Security
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## Security Considerations
-
-- API keys should be secured in production environments
-- Consider implementing rate limiting
-- Validate all user inputs
+- Store keys in `backend/.env` only
 - Use HTTPS in production
-
-## Deployment
-
-To deploy the application:
-
-1. Build the production version:
-   ```bash
-   npm run build
-   ```
-
-2. Deploy the `build` folder to your hosting service (Vercel, Netlify, etc.)
-
-## Support
-
-For support or questions about legal matters, the application provides guidance but users should consult with official authorities or legal professionals for specific legal advice.
+- Rate limit and validate inputs on the backend
 
 ## License
 
-This project is licensed under the ISC License - see the package.json file for details.
-
-## Acknowledgments
-
-- Qwen AI for providing the AI model
-- The Bahrain government for providing legal resources and documentation
-- The React and open-source community for the excellent tools and libraries
+ISC

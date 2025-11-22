@@ -97,8 +97,8 @@ class BahrainGlossaryService {
     },
     {
       term: 'Green Card',
-      bahrainEquivalent: 'Flexi Permit',
-      definition: 'Flexible work permit allowing job mobility in Bahrain',
+      bahrainEquivalent: 'Registered Worker Permit',
+      definition: 'Registered Worker permit allowing job mobility in Bahrain',
       category: 'visa'
     },
 
@@ -187,8 +187,8 @@ class BahrainGlossaryService {
     },
     {
       incorrect: ['Green Card', 'Permanent Residence'],
-      correct: 'Flexi Permit',
-      explanation: 'Bahrain offers Flexi Permits for flexible employment, not green cards'
+      correct: 'Registered Worker Permit',
+      explanation: 'Bahrain offers Registered Worker Permits for flexible employment, not green cards'
     },
     {
       incorrect: ['Severance Pay', 'Redundancy Pay'],
@@ -215,9 +215,9 @@ class BahrainGlossaryService {
       answer: 'Fees vary by nationality and job category. Current fees range from BD 200-400 annually.',
       note: 'Fees are subject to change. Check LMRA website for current rates.'
     },
-    flexiPermit: {
-      question: 'What is Flexi Permit?',
-      answer: 'Flexi Permit allows expatriates to work for multiple employers without traditional sponsorship restrictions.',
+    registeredWorkerPermit: {
+      question: 'What is Registered Worker Permit?',
+      answer: 'Registered Worker Permit allows expatriates to work for multiple employers without traditional sponsorship restrictions.',
       eligibility: [
         'Minimum salary requirement (BD 400)',
         'University degree or professional qualification',

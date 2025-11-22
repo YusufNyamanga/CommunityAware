@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CookieOverlay = styled.div<{ $show: boolean }>`
   position: fixed;
@@ -107,6 +108,7 @@ const CookieLink = styled.button`
 
 export const CookieConsent: React.FC = () => {
   const [showCookies, setShowCookies] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const cookieConsent = localStorage.getItem('cookieConsent');
@@ -135,7 +137,7 @@ export const CookieConsent: React.FC = () => {
   };
 
   const handlePrivacyPolicy = () => {
-    alert('Privacy Policy would open here. This is a demo.');
+    navigate('/privacy');
   };
 
   if (!showCookies) return null;
@@ -152,8 +154,8 @@ export const CookieConsent: React.FC = () => {
       </CookieHeader>
       
       <CookieText>
-        We use cookies to enhance your experience, analyze site traffic, and personalize content. 
-        You can choose which cookies to accept. {' '}
+        We use essential cookies to run our site. Analytics, functional and personalization cookies
+        are used only if you choose to accept all. You can manage preferences anytime. {' '}
         <CookieLink onClick={handlePrivacyPolicy}>
           Learn more in our Privacy Policy
         </CookieLink>

@@ -24,25 +24,6 @@ export type LegalCategory =
   | 'general-legal'
   | 'other';
 
-export interface MoonshotAPIResponse {
-  choices: {
-    message: {
-      content: string;
-      role: string;
-    };
-    finish_reason: string;
-    index: number;
-  }[];
-  usage: {
-    total_tokens: number;
-    completion_tokens: number;
-    prompt_tokens: number;
-  };
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-}
 
 export interface Theme {
   isDark: boolean;
@@ -87,6 +68,15 @@ export interface CommunityPost {
   tags: string[];
   aiResponse?: string;
   aiResponseTimestamp?: Date;
+}
+
+export interface CommunityReply {
+  id: string;
+  postId: string;
+  userName: string;
+  content: string;
+  timestamp: Date;
+  isAnonymous: boolean;
 }
 
 export interface CommunityUser {
