@@ -30,7 +30,14 @@ app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 
 // CORS configuration - allow frontend connections
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'https://umoja-aware.com',
+  'https://www.umoja-aware.com'
+];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
