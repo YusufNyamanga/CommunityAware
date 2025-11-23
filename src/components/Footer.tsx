@@ -64,25 +64,12 @@ export const Footer: React.FC = () => {
   const { currentLanguage } = useLanguage();
   const t = useTranslations(currentLanguage);
   const currentYear = new Date().getFullYear();
-  const adsClient = process.env.REACT_APP_ADSENSE_CLIENT;
+  const adsClient = process.env.REACT_APP_ADSENSE_CLIENT || 'ca-pub-6949690818884998';
   const adsSlot = process.env.REACT_APP_ADSENSE_SLOT;
 
   React.useEffect(() => {
     if (!adsClient) return;
-    const existing = document.querySelector('script[data-adsbygoogle-client]');
-    if (!existing) {
-      const s = document.createElement('script');
-      s.async = true;
-      s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsClient}`;
-      s.setAttribute('data-adsbygoogle-client', adsClient);
-      s.crossOrigin = 'anonymous';
-      document.head.appendChild(s);
-      s.onload = () => {
-        try { (window as any).adsbygoogle = (window as any).adsbygoogle || []; (window as any).adsbygoogle.push({}); } catch {}
-      };
-    } else {
-      try { (window as any).adsbygoogle = (window as any).adsbygoogle || []; (window as any).adsbygoogle.push({}); } catch {}
-    }
+    try { (window as any).adsbygoogle = (window as any).adsbygoogle || []; (window as any).adsbygoogle.push({}); } catch {}
   }, [adsClient]);
 
   return (
