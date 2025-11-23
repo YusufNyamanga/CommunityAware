@@ -239,6 +239,8 @@ export const News: React.FC = () => {
   const { currentLanguage } = useLanguage();
   const fetchControllerRef = useRef<AbortController | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [coldDone, setColdDone] = useState(false);
 
   const RECENT_MS = 24 * 60 * 60 * 1000;
   const isRecent = (dateString: string): boolean => {
@@ -421,15 +423,21 @@ export const News: React.FC = () => {
         setError('Failed to fetch latest news. Showing cached recent data from ' + cached.lastUpdate.toLocaleString());
         setIsUsingCachedData(true);
       } else {
-        setError('No recent news in the last 24 hours.');
+        setError(null);
         setNews([]);
         setLastUpdate(null);
       }
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setInitialLoad(false);
     }
   };
+
+  useEffect(() => {
+    const t = setTimeout(() => setColdDone(true), 8000);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const countryKey = (selectedCountry === 'All' ? 'Bahrain' : selectedCountry).toLowerCase();
@@ -462,7 +470,7 @@ export const News: React.FC = () => {
     return date.toLocaleDateString();
   };
 
-  if (loading) {
+  if (loading || initialLoad) {
     return (
       <NewsContainer>
         <Title>📰 News</Title>
@@ -500,7 +508,7 @@ export const News: React.FC = () => {
       )}
 
       {filteredNews.length === 0 ? (
-        refreshing ? (
+        (initialLoad || loading || refreshing || !coldDone || !lastUpdate) ? (
           <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news…</LoadingMessage>
         ) : (
           <EmptyMessage>

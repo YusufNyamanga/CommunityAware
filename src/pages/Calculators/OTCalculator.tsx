@@ -60,19 +60,19 @@ const Note = styled.p`
 `;
 
 export const OTCalculator: React.FC = () => {
-  const [hourlyRate, setHourlyRate] = useState<number>(0);
-  const [dayHours, setDayHours] = useState<number>(0);
-  const [nightHours, setNightHours] = useState<number>(0);
-  const [restDayHours, setRestDayHours] = useState<number>(0);
+  const [hourlyRate, setHourlyRate] = useState<string>('');
+  const [dayHours, setDayHours] = useState<string>('');
+  const [nightHours, setNightHours] = useState<string>('');
+  const [restDayHours, setRestDayHours] = useState<string>('');
 
   // Typical multipliers used in the region (verify against company policy and law):
   const [dayMultiplier, setDayMultiplier] = useState<number>(1.25); // 125%
   const [nightMultiplier, setNightMultiplier] = useState<number>(1.50); // 150%
   const [restMultiplier, setRestMultiplier] = useState<number>(2.00); // 200%
 
-  const dayOT = hourlyRate * dayHours * dayMultiplier;
-  const nightOT = hourlyRate * nightHours * nightMultiplier;
-  const restOT = hourlyRate * restDayHours * restMultiplier;
+  const dayOT = (parseFloat(hourlyRate || '0') * parseFloat(dayHours || '0') * dayMultiplier);
+  const nightOT = (parseFloat(hourlyRate || '0') * parseFloat(nightHours || '0') * nightMultiplier);
+  const restOT = (parseFloat(hourlyRate || '0') * parseFloat(restDayHours || '0') * restMultiplier);
   const totalOT = dayOT + nightOT + restOT;
 
   return (
@@ -84,19 +84,19 @@ export const OTCalculator: React.FC = () => {
       <Grid>
         <Field>
           Hourly Base Rate (BHD)
-          <Input type="number" value={hourlyRate} onChange={e => setHourlyRate(parseFloat(e.target.value) || 0)} />
+          <Input type="number" value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} />
         </Field>
         <Field>
           Day OT Hours (7:00 AM – 7:00 PM)
-          <Input type="number" value={dayHours} onChange={e => setDayHours(parseFloat(e.target.value) || 0)} />
+          <Input type="number" value={dayHours} onChange={e => setDayHours(e.target.value)} />
         </Field>
         <Field>
           Night OT Hours (7:00 PM – 7:00 AM)
-          <Input type="number" value={nightHours} onChange={e => setNightHours(parseFloat(e.target.value) || 0)} />
+          <Input type="number" value={nightHours} onChange={e => setNightHours(e.target.value)} />
         </Field>
         <Field>
           Rest Day OT Hours (weekly rest day)
-          <Input type="number" value={restDayHours} onChange={e => setRestDayHours(parseFloat(e.target.value) || 0)} />
+          <Input type="number" value={restDayHours} onChange={e => setRestDayHours(e.target.value)} />
         </Field>
         <Field>
           Day OT Multiplier

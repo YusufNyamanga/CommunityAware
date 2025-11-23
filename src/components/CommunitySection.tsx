@@ -234,7 +234,16 @@ interface CommunitySectionProps {
 const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additionalPosts = [] }) => {
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
   const [showNewPostForm, setShowNewPostForm] = useState(false);
-  const [posts, setPosts] = useState<CommunityPost[]>(mockCommunityPosts);
+  const [posts, setPosts] = useState<CommunityPost[]>(() => {
+    const raw = localStorage.getItem('community_posts');
+    if (!raw) return mockCommunityPosts.map(p => ({ ...p, approved: true } as CommunityPost & { approved?: boolean }));
+    try {
+      const parsed = JSON.parse(raw) as CommunityPost[];
+      return parsed.map(p => ({ ...p, approved: p.hasOwnProperty('approved') ? (p as any).approved : true }));
+    } catch {
+      return mockCommunityPosts.map(p => ({ ...p, approved: true } as any));
+    }
+  });
   const [likedPosts, setLikedPosts] = useState<string[]>(() => {
     // Initialize from localStorage
     return JSON.parse(localStorage.getItem('liked_posts') || '[]');
@@ -260,8 +269,9 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
   });
   
   // Merge additional posts from chat with existing posts
-  const allPosts = [...additionalPosts, ...posts];
-  const visiblePosts = filter === 'all' ? allPosts : allPosts.filter(p => p.category === filter);
+  const allPosts = [...additionalPosts.map(p => ({ ...p, approved: (p as any).approved ?? true })), ...posts];
+  const moderated = allPosts.filter(p => (p as any).approved !== false);
+  const visiblePosts = filter === 'all' ? moderated : moderated.filter(p => p.category === filter);
 
   const toggleAIResponse = (postId: string) => {
     const newExpanded = new Set(expandedPosts);
@@ -290,6 +300,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
         post.id === postId ? { ...post, likes: post.likes + 1 } : post
       )
     );
+    setTimeout(() => localStorage.setItem('community_posts', JSON.stringify(currentPostsRef())), 0);
 
     // Also update additional posts if they exist
     if (additionalPosts.some(post => post.id === postId)) {
@@ -313,12 +324,16 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
       timestamp: new Date(),
       isAnonymous: false
     };
-    const newMap = { ...repliesMap, [postId]: [...(repliesMap[postId] || []), newReply] };
+    const newMap = { ...repliesMap, [postId]: [...(repliesMap[postId] || []), { ...newReply, approved: false } as any] };
     setRepliesMap(newMap);
     localStorage.setItem('community_replies', JSON.stringify(newMap));
     setReplyDrafts({ ...replyDrafts, [postId]: '' });
     // increment replies count in posts
-    setPosts(current => current.map(p => p.id === postId ? { ...p, replies: p.replies + 1 } : p));
+    setPosts(current => {
+      const updated = current.map(p => p.id === postId ? { ...p, replies: p.replies + 1 } : p);
+      localStorage.setItem('community_posts', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const handleNewPost = (postData: {
@@ -327,7 +342,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
     tags: string[];
     isAnonymous: boolean;
   }) => {
-    const newPost: CommunityPost = {
+    const newPost: CommunityPost & { approved?: boolean } = {
       id: (posts.length + 1).toString(),
       userId: 'current-user',
       userName: postData.isAnonymous ? 'Anonymous' : 'You',
@@ -337,11 +352,18 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
       likes: 0,
       replies: 0,
       isAnonymous: postData.isAnonymous,
-      tags: postData.tags
+      tags: postData.tags,
+      approved: false
     };
     
-    setPosts([newPost, ...posts]);
+    const updated = [newPost as CommunityPost, ...posts];
+    setPosts(updated);
+    localStorage.setItem('community_posts', JSON.stringify(updated));
     setShowNewPostForm(false);
+  };
+
+  const currentPostsRef = () => {
+    return posts;
   };
 
   return (
@@ -425,9 +447,9 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
           </PostMeta>
 
           {/* Replies list */}
-          {(repliesMap[post.id] || []).length > 0 && (
+          {(repliesMap[post.id] || []).filter(r => (r as any).approved !== false).length > 0 && (
             <div style={{ marginTop: 8 }}>
-              {(repliesMap[post.id] || []).map(r => (
+              {(repliesMap[post.id] || []).filter(r => (r as any).approved !== false).map(r => (
                 <div key={r.id} style={{ padding: '8px 10px', borderLeft: `3px solid ${'#ccc'}`, background: `${'transparent'}` }}>
                   <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: 4 }}>
                     {r.isAnonymous ? 'Anonymous' : r.userName} • {formatTimeAgo(r.timestamp)}

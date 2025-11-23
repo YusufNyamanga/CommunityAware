@@ -97,21 +97,24 @@ const Note = styled.p`
 `;
 
 export const IndemnityCalculator: React.FC = () => {
-  const [monthlySalary, setMonthlySalary] = useState<number>(0);
-  const [years, setYears] = useState<number>(0);
-  const [months, setMonths] = useState<number>(0);
+  const [monthlySalary, setMonthlySalary] = useState<string>('');
+  const [years, setYears] = useState<string>('');
+  const [months, setMonths] = useState<string>('');
   const [resignation, setResignation] = useState<'no' | 'yes'>('no');
 
   // Assumption (commonly referenced in GCC):
   // First 3 years: 0.5 month salary per year; thereon 1 month per year.
   // If resignation, reduce entitlement to 0.5 of above (varies by context).
   const calculateIndemnity = () => {
-    const totalYears = Math.max(0, years) + Math.max(0, months) / 12;
+    const monthlySalaryNum = parseFloat(monthlySalary || '0');
+    const yearsNum = parseInt(years || '0', 10);
+    const monthsNum = parseInt(months || '0', 10);
+    const totalYears = Math.max(0, yearsNum) + Math.max(0, monthsNum) / 12;
     const firstYears = Math.min(totalYears, 3);
     const remainingYears = Math.max(totalYears - 3, 0);
     let monthsEquivalent = firstYears * 0.5 + remainingYears * 1.0;
     if (resignation === 'yes') monthsEquivalent *= 0.5;
-    const amount = monthlySalary * monthsEquivalent;
+    const amount = monthlySalaryNum * monthsEquivalent;
     return { monthsEquivalent, amount };
   };
 
@@ -123,15 +126,15 @@ export const IndemnityCalculator: React.FC = () => {
       <Grid>
         <Field>
           Monthly Basic Salary (BHD)
-          <Input type="number" value={monthlySalary} onChange={e => setMonthlySalary(parseFloat(e.target.value) || 0)} />
+          <Input type="number" value={monthlySalary} onChange={e => setMonthlySalary(e.target.value)} />
         </Field>
         <Field>
           Years of Service
-          <Input type="number" value={years} onChange={e => setYears(parseFloat(e.target.value) || 0)} />
+          <Input type="number" value={years} onChange={e => setYears(e.target.value)} />
         </Field>
         <Field>
           Months of Service
-          <Input type="number" min="0" max="11" value={months} onChange={e => setMonths(parseFloat(e.target.value) || 0)} />
+          <Input type="number" min="0" max="11" value={months} onChange={e => setMonths(e.target.value)} />
         </Field>
         <Field>
           Resignation

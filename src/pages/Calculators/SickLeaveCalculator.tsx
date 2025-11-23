@@ -63,47 +63,47 @@ const Explanation = styled.div`
   font-size: 0.9rem;
 `;
 
-export const LeaveCalculator: React.FC = () => {
+export const SickLeaveCalculator: React.FC = () => {
   const [monthlySalary, setMonthlySalary] = useState<string>('');
-  const [monthsWorked, setMonthsWorked] = useState<string>('');
+  const [sickDays, setSickDays] = useState<string>('');
 
-  // Assumptions consistent with Bahrain practice:
-  // Annual leave entitlement accrues at ~2.5 days/month (30 days/year).
-  // Cash in lieu daily rate approximated as monthlySalary / 30.
-  const entitlementDays = (parseInt(monthsWorked || '0', 10) * 2.5);
-  const dailyRate = (parseFloat(monthlySalary || '0') / 30);
-  const cashInLieu = entitlementDays * dailyRate;
+  const days = Math.max(0, parseInt(sickDays || '0', 10));
+  const dailyRate = parseFloat(monthlySalary || '0') / 30;
+  const fullPayDays = Math.min(days, 15);
+  const halfPayDays = Math.min(Math.max(days - 15, 0), 20);
+  const unpaidDays = Math.min(Math.max(days - 35, 0), 20);
+  const leaveSalary = fullPayDays * dailyRate + halfPayDays * dailyRate * 0.5;
 
   return (
     <Container>
-      <Title>Annual Leave Entitlement Calculator</Title>
+      <Title>Sick Leave Calculator</Title>
       <Grid>
         <Field>
           Monthly Basic Salary (BHD)
           <Input type="number" value={monthlySalary} onChange={e => setMonthlySalary(e.target.value)} />
         </Field>
         <Field>
-          Months Worked in Leave Year
-          <Input type="number" value={monthsWorked} onChange={e => setMonthsWorked(e.target.value)} />
+          Sick Leave Days Taken This Year
+          <Input type="number" value={sickDays} onChange={e => setSickDays(e.target.value)} />
         </Field>
       </Grid>
       <Result>
-        <div>Accrued Leave Days: <strong>{entitlementDays.toFixed(2)} days</strong></div>
-        <div>Daily Rate: <strong>BHD {dailyRate.toFixed(3)}</strong></div>
-        <div>Leave Salary: <strong>BHD {cashInLieu.toFixed(3)}</strong></div>
+        <div>Full Pay Days (100%): <strong>{fullPayDays}</strong></div>
+        <div>Half Pay Days (50%): <strong>{halfPayDays}</strong></div>
+        <div>Unpaid Days: <strong>{unpaidDays}</strong></div>
+        <div>Leave Salary: <strong>BHD {leaveSalary.toFixed(3)}</strong></div>
       </Result>
       <Note>
-        Under Bahrain Labour Law (Law No. 36 of 2012), annual leave is not less than 30 calendar days per year and is pro‑rated at 2.5 days per month of service. Confirm exact application with HR/legal; public holidays and sickness rules are separate.
+        Under Bahrain Labour Law (Law No. 36 of 2012), sick leave entitlement per year is 15 days at full pay, next 20 days at half pay, and next 20 days unpaid, subject to medical certification and employer procedures.
       </Note>
       <Explanation>
-        How leave is calculated:
-        • Accrued leave days = monthsWorked × 2.5.
+        How sick leave is calculated:
         • Daily rate = monthlySalary ÷ 30.
-        • Leave salary = accrued leave days × daily rate.
-        This reflects the statutory 30‑day entitlement and monthly pro‑rata accrual under Bahrain Labour Law.
+        • Leave salary = (fullPayDays × dailyRate) + (halfPayDays × dailyRate × 0.5).
+        • Entitlement sequence: 15 full‑pay days → 20 half‑pay days → 20 unpaid days.
       </Explanation>
     </Container>
   );
 };
 
-export default LeaveCalculator;
+export default SickLeaveCalculator;

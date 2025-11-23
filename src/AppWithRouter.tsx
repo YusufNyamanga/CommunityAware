@@ -121,6 +121,7 @@ const AppContent: React.FC = () => {
   const [showInstall, setShowInstall] = React.useState<boolean>(false);
   const [iosHint, setIosHint] = React.useState<string>('');
   
+  
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
   };
@@ -135,6 +136,8 @@ const AppContent: React.FC = () => {
       window.removeEventListener('offline', onOffline);
     };
   }, []);
+
+  
 
   React.useEffect(() => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
@@ -232,6 +235,7 @@ const AppContent: React.FC = () => {
     <StyledThemeProvider theme={theme}>
       <GlobalStyles theme={theme} />
       <AppContainer>
+        
         <OfflineBanner $show={isOffline}>You are offline. Some features may be unavailable.</OfflineBanner>
         <InstallBanner $show={showInstall}>
           {iosHint ? (
@@ -292,6 +296,7 @@ const AppContent: React.FC = () => {
             </PageContainer>
           </>
         } />
+        
           
           <Route path="/community" element={
             <>
@@ -349,6 +354,14 @@ const AppContent: React.FC = () => {
               <Suspense fallback={<div style={{ padding: 20 }}>Loading…</div>}>
                 <ResignationLetterGenerator />
               </Suspense>
+            </PageContainer>
+          </>
+        } />
+        <Route path="*" element={
+          <>
+            <HeaderWithRouter activeTab={activeTab} onTabChange={handleTabChange} />
+            <PageContainer>
+              <div style={{ padding: 20, fontWeight: 600 }}>404 — Page not found</div>
             </PageContainer>
           </>
         } />

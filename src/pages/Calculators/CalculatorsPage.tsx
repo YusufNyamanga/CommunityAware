@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import IndemnityCalculator from './IndemnityCalculator';
 import LeaveCalculator from './LeaveCalculator';
 import OTCalculator from './OTCalculator';
+import SickLeaveCalculator from './SickLeaveCalculator';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -84,18 +85,18 @@ export const CalculatorsPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getSelected = (): 'indemnity' | 'leave' | 'ot' => {
+  const getSelected = (): 'indemnity' | 'leave' | 'ot' | 'sick' => {
     const parts = location.pathname.split('/').filter(Boolean);
     // path: /calculators or /calculators/<type>
     const type = parts[1];
-    if (type === 'leave' || type === 'ot' || type === 'indemnity') return type as any;
+    if (type === 'leave' || type === 'ot' || type === 'indemnity' || type === 'sick') return type as any;
     return 'indemnity';
   };
 
   const selected = getSelected();
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value as 'indemnity' | 'leave' | 'ot';
+    const val = e.target.value as 'indemnity' | 'leave' | 'ot' | 'sick';
     navigate(`/calculators/${val}`, { replace: true });
   };
 
@@ -107,6 +108,7 @@ export const CalculatorsPage: React.FC = () => {
             <option value="indemnity">Indemnity</option>
             <option value="leave">Leave</option>
             <option value="ot">Overtime</option>
+            <option value="sick">Sick Leave</option>
           </Dropdown>
           <DropdownIcon />
         </DropdownContainer>
@@ -116,6 +118,7 @@ export const CalculatorsPage: React.FC = () => {
         <Route path="indemnity" element={<IndemnityCalculator />} />
         <Route path="leave" element={<LeaveCalculator />} />
         <Route path="ot" element={<OTCalculator />} />
+        <Route path="sick" element={<SickLeaveCalculator />} />
         {/* Normalize any deep paths like /calculators/indemnity/leave */}
         <Route path="*" element={<Navigate to={selected} replace />} />
       </Routes>
