@@ -19,6 +19,7 @@ export const SEO: React.FC<SEOProps> = ({
   ogType = 'website'
 }) => {
   const effectiveTitle = 'Umoja-Aware — AI Community Awareness Assistant for Bahrain';
+  const GA_ID = process.env.REACT_APP_GA_MEASUREMENT_ID;
   return (
     <Helmet>
       <title>{effectiveTitle}</title>
@@ -45,6 +46,19 @@ export const SEO: React.FC<SEOProps> = ({
       {/* Additional SEO */}
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta charSet="utf-8" />
+
+      {/* Google Analytics (gtag.js) */}
+      {GA_ID && (
+        <>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+          <script>{`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);} 
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}', { anonymize_ip: true });
+          `}</script>
+        </>
+      )}
     </Helmet>
   );
 };

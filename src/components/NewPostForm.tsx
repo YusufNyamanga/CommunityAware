@@ -130,6 +130,7 @@ const TagsInput = styled.input`
 
 interface NewPostFormProps {
   onSubmit: (postData: {
+    name?: string;
     content: string;
     category: LegalCategory;
     tags: string[];
@@ -139,6 +140,7 @@ interface NewPostFormProps {
 }
 
 const NewPostForm: React.FC<NewPostFormProps> = ({ onSubmit, onCancel }) => {
+  const [name, setName] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<LegalCategory>('other');
   const [tagsInput, setTagsInput] = useState('');
@@ -155,6 +157,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ onSubmit, onCancel }) => {
       .filter(tag => tag.length > 0);
 
     onSubmit({
+      name: name.trim() || undefined,
       content: content.trim(),
       category,
       tags,
@@ -166,6 +169,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ onSubmit, onCancel }) => {
     setCategory('other');
     setTagsInput('');
     setIsAnonymous(false);
+    setName('');
   };
 
   const categories: { value: LegalCategory; label: string }[] = [
@@ -184,6 +188,12 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ onSubmit, onCancel }) => {
       <FormTitle>✍️ Share Your Question or Experience</FormTitle>
       
       <form onSubmit={handleSubmit}>
+        <TagsInput
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name (optional)"
+        />
+        
         <TextArea
           value={content}
           onChange={(e) => setContent(e.target.value)}

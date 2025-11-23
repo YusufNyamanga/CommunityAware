@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { mockCommunityPosts, formatTimeAgo, getCategoryEmoji } from '../data/communityData';
 import { CommunityPost, LegalCategory, CommunityReply } from '../types';
-import NewPostForm from './NewPostForm';
 
 const CommunityContainer = styled.div`
   background: ${props => props.theme.colors.background};
@@ -173,6 +172,10 @@ const NewPostButton = styled.button`
   gap: 8px;
   transition: all 0.2s ease;
 
+  .plus {
+    color: ${props => props.theme.colors.error};
+  }
+
   &:hover {
     background: ${props => props.theme.colors.primaryDark};
     transform: translateY(-1px);
@@ -233,13 +236,17 @@ interface CommunitySectionProps {
 
 const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additionalPosts = [] }) => {
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
-  const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [posts, setPosts] = useState<CommunityPost[]>(() => {
     const raw = localStorage.getItem('community_posts');
     if (!raw) return mockCommunityPosts.map(p => ({ ...p, approved: true } as CommunityPost & { approved?: boolean }));
     try {
       const parsed = JSON.parse(raw) as CommunityPost[];
-      return parsed.map(p => ({ ...p, approved: p.hasOwnProperty('approved') ? (p as any).approved : true }));
+      return parsed.map(p => ({
+        ...p,
+        timestamp: new Date(p.timestamp as any),
+        aiResponseTimestamp: p.aiResponseTimestamp ? new Date(p.aiResponseTimestamp as any) : undefined,
+        approved: p.hasOwnProperty('approved') ? (p as any).approved : true
+      }));
     } catch {
       return mockCommunityPosts.map(p => ({ ...p, approved: true } as any));
     }
@@ -337,6 +344,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
   };
 
   const handleNewPost = (postData: {
+    name?: string;
     content: string;
     category: LegalCategory;
     tags: string[];
@@ -345,7 +353,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
     const newPost: CommunityPost & { approved?: boolean } = {
       id: (posts.length + 1).toString(),
       userId: 'current-user',
-      userName: postData.isAnonymous ? 'Anonymous' : 'You',
+      userName: postData.isAnonymous ? 'Anonymous' : (postData.name?.trim() || 'You'),
       content: postData.content,
       category: postData.category,
       timestamp: new Date(),
@@ -359,7 +367,7 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
     const updated = [newPost as CommunityPost, ...posts];
     setPosts(updated);
     localStorage.setItem('community_posts', JSON.stringify(updated));
-    setShowNewPostForm(false);
+    
   };
 
   const currentPostsRef = () => {
@@ -372,20 +380,12 @@ const CommunitySection: React.FC<CommunitySectionProps> = ({ onClose, additional
         <Title>
           💬 Community Feed
         </Title>
-        <HeaderButtons>
-          <NewPostButton onClick={() => setShowNewPostForm(!showNewPostForm)}>
-            {showNewPostForm ? '✖ Cancel' : '➕ New Post'}
-          </NewPostButton>
+      <HeaderButtons>
           
-        </HeaderButtons>
+      </HeaderButtons>
       </HeaderRow>
       
-      {showNewPostForm && (
-        <NewPostForm
-          onSubmit={handleNewPost}
-          onCancel={() => setShowNewPostForm(false)}
-        />
-      )}
+      
       <FilterRow>
         {(['all','labour-law','company-formation','visa-services','grace-period','lmra','sijilat','general-legal','other'] as const).map(cat => (
           <FilterChip key={cat} $active={filter===cat} onClick={() => setFilter(cat as any)}>

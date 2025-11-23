@@ -1,8 +1,8 @@
-const CACHE_NAME = 'umoja-aware-cache-v4';
+const CACHE_NAME = 'umoja-aware-cache-v5';
 const ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json?v=4',
+  '/manifest.json?v=5',
   '/favicon.svg'
 ];
 

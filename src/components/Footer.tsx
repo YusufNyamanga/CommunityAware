@@ -64,6 +64,26 @@ export const Footer: React.FC = () => {
   const { currentLanguage } = useLanguage();
   const t = useTranslations(currentLanguage);
   const currentYear = new Date().getFullYear();
+  const adsClient = process.env.REACT_APP_ADSENSE_CLIENT;
+  const adsSlot = process.env.REACT_APP_ADSENSE_SLOT;
+
+  React.useEffect(() => {
+    if (!adsClient) return;
+    const existing = document.querySelector('script[data-adsbygoogle-client]');
+    if (!existing) {
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsClient}`;
+      s.setAttribute('data-adsbygoogle-client', adsClient);
+      s.crossOrigin = 'anonymous';
+      document.head.appendChild(s);
+      s.onload = () => {
+        try { (window as any).adsbygoogle = (window as any).adsbygoogle || []; (window as any).adsbygoogle.push({}); } catch {}
+      };
+    } else {
+      try { (window as any).adsbygoogle = (window as any).adsbygoogle || []; (window as any).adsbygoogle.push({}); } catch {}
+    }
+  }, [adsClient]);
 
   return (
     <FooterContainer>
@@ -84,6 +104,17 @@ export const Footer: React.FC = () => {
           </QuickLink>
         </QuickLinks>
       </FooterContent>
+      {adsClient && (
+        <div style={{ maxWidth: 1200, margin: '16px auto 0' }}>
+          <ins className="adsbygoogle"
+            style={{ display: 'block' }}
+            data-ad-client={adsClient}
+            data-ad-slot={adsSlot || 'auto'}
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        </div>
+      )}
     </FooterContainer>
   );
 };

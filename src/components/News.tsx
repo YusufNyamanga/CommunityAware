@@ -241,6 +241,7 @@ export const News: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   const [coldDone, setColdDone] = useState(false);
+  const [awaitingFresh, setAwaitingFresh] = useState(false);
 
   const RECENT_MS = 24 * 60 * 60 * 1000;
   const isRecent = (dateString: string): boolean => {
@@ -357,6 +358,7 @@ export const News: React.FC = () => {
   const fetchNews = async () => {
     setRefreshing(true);
     setLoading(true);
+    setAwaitingFresh(true);
     setError(null);
     setIsUsingCachedData(false);
     
@@ -411,6 +413,7 @@ export const News: React.FC = () => {
       const currentTime = new Date();
       setLastUpdate(currentTime);
       saveNewsToCache((selectedCountry === 'All' ? 'Bahrain' : selectedCountry).toLowerCase(), sortedNews, currentTime);
+      if (sortedNews.length > 0) setAwaitingFresh(false);
     } catch (error) {
       console.error('Error fetching news:', error);
       
@@ -470,24 +473,15 @@ export const News: React.FC = () => {
     return date.toLocaleDateString();
   };
 
-  if (loading || initialLoad) {
-    return (
-      <NewsContainer>
-        <Title>📰 News</Title>
-        <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news...</LoadingMessage>
-      </NewsContainer>
-    );
-  }
-
   return (
     <NewsContainer>
       <Title>📰 News</Title>
+      {(loading || initialLoad || refreshing || awaitingFresh) && (
+        <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news...</LoadingMessage>
+      )}
       <RefreshButton onClick={fetchNews}>
         🔄 Refresh News
       </RefreshButton>
-      {!loading && refreshing && (
-        <LoadingMessage><Loader size={16} style={{ marginRight: 8 }} /> Fetching latest…</LoadingMessage>
-      )}
       {lastUpdate && (
         <NewsMeta style={{ marginBottom: '16px' }}>
           <MetaItem>
@@ -508,7 +502,7 @@ export const News: React.FC = () => {
       )}
 
       {filteredNews.length === 0 ? (
-        (initialLoad || loading || refreshing || !coldDone || !lastUpdate) ? (
+        (awaitingFresh || initialLoad || loading || refreshing || !coldDone || !lastUpdate) ? (
           <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news…</LoadingMessage>
         ) : (
           <EmptyMessage>
