@@ -1,106 +1,88 @@
-# Umoja-Aware – AI Legal Assistant for Bahrain
+# Umoja‑Aware — Coolify Deployment Guide
 
-Umoja-Aware is a specialized AI assistant focused on Bahrain legal topics. The AI layer runs strictly in the backend and proxies all requests to approved providers.
+## Overview
+Umoja‑Aware is a React frontend with a Node/Express backend. This deployment guide focuses on Coolify setup for a production domain: `https://umoja-aware.com`.
 
-## Core Setup
+## Repository Structure
+- `frontend (root)`
+  - React app, build with `npm run build`, served as static assets from `build/`
+  - PWA: `public/manifest.json`, `public/service-worker.js`
+  - GA and AdSense head scripts in `public/index.html`
+- `backend/`
+  - Node/Express API (TypeScript → `dist/`), start with `npm start`
+  - Security: `helmet`, rate limiting, CORS with `https://umoja-aware.com`
 
-- Backend AI providers: DeepSeek and Moonshot (Kimi) only
-- Frontend has no AI keys and never calls external AI directly
-- All chat requests go through the backend at `/api/chat` (and `/api/chat/stream` in dev)
+## Environment Variables
+Configure in Coolify services; do not commit secrets.
 
-## Features
+### Frontend
+- `REACT_APP_BACKEND_URL` — Base URL for API (e.g., `https://umoja-aware.com` if reverse‑proxied on same domain; otherwise your API origin)
 
-- AI legal assistance (labour law, company formation, visa services, LMRA, Sijilat)
-- Category detection with tailored prompts
-- Query‑matched offline fallback responses when providers are unreachable
-- Modern responsive UI with minimalist chat and animated CTA placeholder
+### Backend
+- `NODE_ENV=production`
+- `PORT=5000` (or the service port you expose)
+- `JWT_SECRET=<strong_random_string>`
+- `RATE_LIMIT_MAX_REQUESTS=120` (example)
+- `RATE_LIMIT_WINDOW=900000` (15 minutes)
+- Optional AI providers:
+  - `DEEPSEEK_API_KEY=<key>`
+  - `DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions` (default)
+  - `MOONSHOT_API_KEY=<key>`
+  - `MOONSHOT_API_URL=https://api.moonshot.cn/v1/chat/completions`
 
-## Tech Stack
+## Build & Run Commands
+### Frontend (React)
+- Build: `npm run build`
+- Output directory: `build`
 
-- Frontend: React 18 + TypeScript, Styled Components
-- Backend: Node.js + TypeScript, Express, Axios
-- AI Providers: DeepSeek, Moonshot (Kimi)
+### Backend (Node/Express)
+- Build: `npm run build`
+- Run: `npm start`
+- Health check: `GET /health`
 
-## Getting Started
+## Coolify Setup
+Create two services:
 
-### Prerequisites
+### 1) Frontend Service
+- Type: Static site or Node app serving `build/`
+- Build command: `npm ci && npm run build`
+- Output directory: `build`
+- Env:
+  - `REACT_APP_BACKEND_URL` pointing to your API base URL
+- Domain: `https://umoja-aware.com`
 
-- Node.js 18+
-- npm
+### 2) Backend Service
+- Type: Node app
+- Build command: `npm ci && npm run build`
+- Run command: `npm start`
+- Env: set all backend variables listed above
+- Healthcheck: `GET /health`
+- CORS: already whitelisted for `https://umoja-aware.com` and `https://www.umoja-aware.com`
 
-### Install
+## Security Notes
+- No secrets are hardcoded. Provider keys are read from environment.
+- `helmet` adds HTTP security headers.
+- Rate limits applied to chat/news/jobs endpoints.
+- Debug/test endpoints are disabled in production.
+- Service Worker avoids caching API and `/health` routes.
 
-```bash
-git clone <repository-url>
-cd UmojaAware
-npm install
-```
+## Ads & Analytics
+- GA4 tag and AdSense client script are embedded in `public/index.html`:
+  - GA: `G-TXVHX0VBRR`
+  - AdSense: `ca-pub-6949690818884998`
+- Footer renders a responsive AdSense unit. No additional configuration is required in Coolify.
 
-### Configure Backend Environment
+## PWA Icons & Favicon
+- `favicon.svg` is used for all PWA icon sizes (64/192/512, maskable) in `manifest.json`.
 
-Create `backend/.env` from `backend/.env.example` and set keys:
-
-```
-PORT=5000
-DEEPSEEK_API_KEY=sk-your-deepseek-key
-DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
-MOONSHOT_API_KEY=sk-your-kimi-key    # optional; required for zh/zh‑tw
-MOONSHOT_API_URL=https://api.moonshot.cn/v1/chat/completions
-JWT_SECRET=your_jwt_secret_here
-CORS_ORIGIN=http://localhost:3001
-```
-
-### Run
-
-Start backend:
-
-```bash
-cd backend
-npm run dev
-```
-
-Start frontend (dev):
-
-```bash
-$env:PORT=3001; npm start
-```
-
-Open `http://localhost:3001`.
-
-## Project Structure
-
-```
-backend/
-  src/
-    controllers/
-    services/
-    app.ts
-frontend (root)/
-  src/
-    components/
-    services/
-    AppWithRouter.tsx
-```
-
-## AI Configuration Policy
-
-- Only DeepSeek and Moonshot (Kimi) are supported
-- Provider selection: Kimi for zh/zh‑tw when a valid key is present; otherwise DeepSeek
-- Temperatures tuned for legal accuracy (0.35–0.4) per category
-- Frontend must not include AI credentials or call providers directly
+## Troubleshooting
+- If deployment fails on the backend:
+  - Verify `NODE_ENV=production` and `JWT_SECRET` are set.
+  - Confirm the service port and healthcheck settings.
+  - Ensure the configured domain matches CORS allowed origins.
+- If the frontend cannot reach API:
+  - Confirm `REACT_APP_BACKEND_URL` points to the correct origin.
+  - Check browser console network logs; verify HTTPS and CORS.
 
 ## Notes
-
-- Offline fallback is query‑aware and category‑specific
-- Idle chat layout is responsive; welcome screen does not scroll
-- Main screen footer removed; sidebar footer retained
-
-## Security
-
-- Store keys in `backend/.env` only
-- Use HTTPS in production
-- Rate limit and validate inputs on the backend
-
-## License
-
-ISC
+- For additional ad placements or analytics events, update the React components and/or head scripts as needed without changing deployment steps.
