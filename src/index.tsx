@@ -21,3 +21,25 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js').catch(() => {});
   });
 }
+
+if (process.env.NODE_ENV === 'production') {
+  const blockKeys = (e: KeyboardEvent) => {
+    const k = (e.key || '').toLowerCase();
+    if (
+      k === 'f12' ||
+      (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c' || k === 'p')) ||
+      (e.ctrlKey && (k === 'u' || k === 's'))
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+  window.addEventListener('keydown', blockKeys, { capture: true });
+  window.addEventListener('contextmenu', (e) => { e.preventDefault(); }, { capture: true });
+  const noop = () => {};
+  console.log = noop;
+  console.info = noop;
+  console.debug = noop;
+  console.warn = noop;
+  console.error = noop;
+}
