@@ -537,13 +537,14 @@ export const News: React.FC = () => {
                 </MetaItem>
               </NewsMeta>
               
-              <NewsDescription 
-                dangerouslySetInnerHTML={{ 
-                  __html: item.description.length > 150 
-                    ? item.description.substring(0, 150) + '...' 
-                    : item.description 
-                }} 
-              />
+              <NewsDescription>
+                {(() => {
+                  const raw = item.description || '';
+                  const cleaned = raw.replace(/<[^>]*>/g, '');
+                  const text = cleaned.replace(/\s+/g, ' ').trim();
+                  return text.length > 150 ? (text.substring(0, 150) + '...') : text;
+                })()}
+              </NewsDescription>
               
               <ReadMoreLink href={item.link} target="_blank" rel="noopener noreferrer">
                 Read more <ExternalLink size={12} />

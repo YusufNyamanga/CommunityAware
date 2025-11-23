@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { config } from 'dotenv';
 
 // Load environment variables FIRST before importing services
@@ -21,6 +23,12 @@ import { load as loadXML } from 'cheerio';
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Trust proxy for correct IP in rate limiting behind reverse proxies
+app.set('trust proxy', 1);
+
+// Security headers
+app.use(helmet({ contentSecurityPolicy: false }));
+
 // CORS configuration - allow frontend connections
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'];
 app.use(cors({
@@ -40,17 +48,62 @@ app.use(cors({
 // Body parsing
 app.use(express.json());
 
-// Debug endpoint to check environment variables
-app.get('/api/debug-env', (req, res) => {
-  res.json({
-    PORT: process.env.PORT,
-    NODE_ENV: process.env.NODE_ENV,
-    DEEPSEEK_API_KEY_EXISTS: !!process.env.DEEPSEEK_API_KEY,
-    DEEPSEEK_API_KEY_LENGTH: process.env.DEEPSEEK_API_KEY?.length || 0,
-    DEEPSEEK_API_KEY_PREFIX: process.env.DEEPSEEK_API_KEY?.substring(0, 10) + '...',
-    AI_SERVICE: 'DeepSeek (Enhanced Multilingual)',
+// Debug/Test endpoints enabled only outside production
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/api/debug-env', (req, res) => {
+    res.json({
+      PORT: process.env.PORT,
+      NODE_ENV: process.env.NODE_ENV,
+      DEEPSEEK_API_KEY_EXISTS: !!process.env.DEEPSEEK_API_KEY,
+      DEEPSEEK_API_KEY_LENGTH: process.env.DEEPSEEK_API_KEY?.length || 0,
+      DEEPSEEK_API_KEY_PREFIX: process.env.DEEPSEEK_API_KEY?.substring(0, 10) + '...',
+      AI_SERVICE: 'DeepSeek (Enhanced Multilingual)',
+    });
   });
-});
+
+  app.get('/api/test-lmra-faq', async (req, res) => {
+    try {
+      console.log('🔍 Testing LMRA FAQ scraping...');
+      const faqData = await webScrapingService.scrapeLMRAFAQ();
+      res.json({
+        success: true,
+        message: `Successfully scraped ${faqData.length} FAQ items from LMRA`,
+        data: faqData.slice(0, 3),
+        total: faqData.length
+      });
+    } catch (error) {
+      console.error('Error testing LMRA FAQ:', error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Failed to scrape LMRA FAQ' });
+    }
+  });
+
+  app.post('/api/test-live-search', async (req, res) => {
+    try {
+      const { query, category = 'general-legal' } = req.body;
+      if (!query) {
+        return res.status(400).json({ error: 'Query parameter is required' });
+      }
+      console.log(`🔍 Testing live search for: "${query}"`);
+      const liveData = await searchService.searchLiveData(query, category);
+      const formattedContext = searchService.formatLiveDataForAI(liveData);
+      res.json({ success: true, query, category, liveData, formattedContext, summary: liveData.summary });
+    } catch (error) {
+      console.error('Error testing live search:', error);
+      res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Failed to search live data' });
+    }
+  });
+
+  app.post('/api/test-ai-direct', async (req, res) => {
+    try {
+      const { message, category = 'VISA', language = 'en' } = req.body;
+      const response = await aiService.sendMessage(message, [], category as any, language as any);
+      res.json(response);
+    } catch (error) {
+      console.error('AI Test Error:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to connect to AI service' });
+    }
+  });
+}
 
 // LMRA FAQ scraping test endpoint
 app.get('/api/test-lmra-faq', async (req, res) => {
@@ -238,7 +291,7 @@ app.post('/api/admin/clear-cache', async (req, res) => {
   }
 });
 
-// Performance test endpoint
+// Performance test endpoint (disabled in production)
 app.post('/api/performance-test', async (req, res) => {
   try {
     const { query = 'work visa requirements', iterations = 3 } = req.body;
@@ -315,9 +368,13 @@ app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
 app.get('/api/test-ai', validateToken, aiController.testConnection);
 
-// Chat routes (temporarily without auth for testing - should add auth in production)
-app.post('/api/chat', aiController.handleChat);
-app.get('/api/chat/stream', aiController.handleChatStreamGet);
+// Basic rate limits
+const chatLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false });
+const newsLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false });
+
+// Chat routes (temporarily without auth for testing - add auth in production)
+app.post('/api/chat', chatLimiter, aiController.handleChat);
+app.get('/api/chat/stream', chatLimiter, aiController.handleChatStreamGet);
 
 // Protected routes (for future authenticated features)
 // app.use('/api/chat', validateToken, checkUserRateLimit, validateRequestToken, aiController.handleChat);
@@ -388,7 +445,7 @@ async function fetchRSS(url: string, source: string): Promise<NewsItem[]> {
   }
 }
 
-app.get('/api/news/bahrain', async (req, res) => {
+app.get('/api/news/bahrain', newsLimiter, async (req, res) => {
   try {
     if (bahrainNewsCache && bahrainNewsCache.exp > Date.now()) {
       return res.json({ success: true, cached: true, items: bahrainNewsCache.items });
@@ -472,7 +529,7 @@ function getFeedsForCountry(country: string, lang?: string): Array<{ name: strin
   return feeds;
 }
 
-app.get('/api/news/:country', async (req, res) => {
+app.get('/api/news/:country', newsLimiter, async (req, res) => {
   try {
     const country = (req.params.country || '').trim();
     if (!country) return res.status(400).json({ success: false, error: 'Country required' });
@@ -638,7 +695,7 @@ async function scrapeExpatriatesBahrainJobs(): Promise<JobItem[]> {
   }
 }
 
-app.get('/api/jobs', async (req, res) => {
+app.get('/api/jobs', newsLimiter, async (req, res) => {
   try {
     // Force Bahrain-only jobs
     const country = 'Bahrain';

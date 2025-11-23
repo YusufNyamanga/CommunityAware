@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secure-jwt-secret-key-here';
+const IS_PROD = process.env.NODE_ENV === 'production';
+if (IS_PROD && (process.env.JWT_SECRET === undefined || process.env.JWT_SECRET === 'your-super-secure-jwt-secret-key-here')) {
+  console.warn('WARNING: JWT_SECRET is not set securely in production. Set a strong JWT_SECRET in environment variables.');
+}
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '1h';
 
 export interface AuthRequest extends Request {
