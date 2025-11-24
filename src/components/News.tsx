@@ -52,7 +52,7 @@ const NewsCard = styled.div`
   border-radius: 8px;
   padding: 16px;
   transition: all 0.2s ease;
-  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 
@@ -116,9 +116,13 @@ const ReadMoreLink = styled.a`
 
 const NewsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
   align-items: stretch;
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 `;
 
 const LoadingMessage = styled.div`
@@ -240,8 +244,6 @@ export const News: React.FC = () => {
   const fetchControllerRef = useRef<AbortController | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
-  const [coldDone, setColdDone] = useState(false);
-  const [awaitingFresh, setAwaitingFresh] = useState(false);
 
   const RECENT_MS = 24 * 60 * 60 * 1000;
   const isRecent = (dateString: string): boolean => {
@@ -358,7 +360,6 @@ export const News: React.FC = () => {
   const fetchNews = async () => {
     setRefreshing(true);
     setLoading(true);
-    setAwaitingFresh(true);
     setError(null);
     setIsUsingCachedData(false);
     
@@ -413,7 +414,7 @@ export const News: React.FC = () => {
       const currentTime = new Date();
       setLastUpdate(currentTime);
       saveNewsToCache((selectedCountry === 'All' ? 'Bahrain' : selectedCountry).toLowerCase(), sortedNews, currentTime);
-      if (sortedNews.length > 0) setAwaitingFresh(false);
+      
     } catch (error) {
       console.error('Error fetching news:', error);
       
@@ -437,10 +438,7 @@ export const News: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const t = setTimeout(() => setColdDone(true), 8000);
-    return () => clearTimeout(t);
-  }, []);
+  // no cold-start gating; show loader only until first fetch completes
 
   useEffect(() => {
     const countryKey = (selectedCountry === 'All' ? 'Bahrain' : selectedCountry).toLowerCase();
@@ -476,7 +474,7 @@ export const News: React.FC = () => {
   return (
     <NewsContainer>
       <Title>📰 News</Title>
-      {(loading || initialLoad || refreshing || awaitingFresh) && (
+      {(loading || initialLoad) && (
         <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news...</LoadingMessage>
       )}
       <RefreshButton onClick={fetchNews}>
@@ -502,13 +500,11 @@ export const News: React.FC = () => {
       )}
 
       {filteredNews.length === 0 ? (
-        (awaitingFresh || initialLoad || loading || refreshing || !coldDone || !lastUpdate) ? (
-          <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news…</LoadingMessage>
-        ) : (
+        (!loading && !initialLoad) ? (
           <EmptyMessage>
             No recent news (last 24h) for {selectedCountry === 'All' ? 'selected region' : selectedCountry}
           </EmptyMessage>
-        )
+        ) : null
       ) : (
         <NewsGrid>
           {filteredNews.map((item, index) => (
