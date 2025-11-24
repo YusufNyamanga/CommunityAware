@@ -322,6 +322,12 @@ const ResignationLetterGenerator: React.FC = () => {
     win.document.write(html);
     win.document.close();
     try { win.focus(); } catch {}
+    try {
+      // Ensure the print preview does not trap the user; close after print
+      win.onafterprint = () => { try { win.close(); } catch {} };
+      // Safety: auto-close if print dialog dismissed without firing afterprint
+      setTimeout(() => { try { win.close(); } catch {} }, 10000);
+    } catch {}
   };
 
   return (

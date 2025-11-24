@@ -58,6 +58,17 @@ const InstallBanner = styled.div<{ $show: boolean }>`
   display: ${({ $show }) => ($show ? 'flex' : 'none')};
   gap: 12px;
   align-items: center;
+  max-width: 90vw;
+`;
+
+const CloseBanner = styled.button`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text};
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
 `;
 
 const InstallButton = styled.button`
@@ -239,7 +250,10 @@ const AppContent: React.FC = () => {
         <OfflineBanner $show={isOffline}>You are offline. Some features may be unavailable.</OfflineBanner>
         <InstallBanner $show={showInstall}>
           {iosHint ? (
-            <span>{iosHint}</span>
+            <>
+              <span>{iosHint}</span>
+              <CloseBanner onClick={() => { setShowInstall(false); setIosHint(''); }}>✖</CloseBanner>
+            </>
           ) : (
             <>
               <span>Install the app for a native experience</span>
@@ -252,6 +266,7 @@ const AppContent: React.FC = () => {
                   }
                 } catch {}
               }}>Install App</InstallButton>
+              <CloseBanner onClick={() => setShowInstall(false)}>✖</CloseBanner>
             </>
           )}
         </InstallBanner>
