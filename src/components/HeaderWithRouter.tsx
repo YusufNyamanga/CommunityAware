@@ -645,18 +645,7 @@ export const HeaderWithRouter: React.FC<HeaderProps> = ({ activeTab, onTabChange
           {t.copyright.replace('{year}', new Date().getFullYear().toString())}
         </div>
       </MenuPanel>
-      {!isStandalone && showInstall && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 400 }} onClick={() => setShowInstall(false)}>
-          <div style={{ maxWidth: 420, margin: '15vh auto', background: 'var(--surface, #1a1a1a)', borderRadius: 12, padding: 20, border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: 0, color: 'inherit' }}>Install App</h3>
-            <p style={{ color: 'inherit', opacity: 0.8 }}>Install Umoja‑Aware to your device for a native experience.</p>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
-              <button onClick={() => setShowInstall(false)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'inherit' }}>Cancel</button>
-              <button onClick={handleInstall} style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: '#FF8C00', color: '#000' }}>Install</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Install modal removed to avoid duplicate PWA prompts; use global banner only */}
     </>
   );
 };
