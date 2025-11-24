@@ -43,7 +43,8 @@ class AiService {
     this.DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
     this.DEEPSEEK_API_URL = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/chat/completions';
     this.MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || '';
-    this.MOONSHOT_API_URL = process.env.MOONSHOT_API_URL || 'https://api.moonshot.cn/v1/chat/completions';
+    // Use international Moonshot endpoint (no .cn); allow env override
+    this.MOONSHOT_API_URL = process.env.MOONSHOT_API_URL || 'https://api.moonshot.ai/v1/chat/completions';
     
     if (!this.DEEPSEEK_API_KEY) {
       console.warn('⚠️ DeepSeek API KEY NOT FOUND! Check your backend .env file.');
