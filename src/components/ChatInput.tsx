@@ -58,7 +58,7 @@ const GhostPlaceholder = styled.div<{ $rtl: boolean }>`
   font-size: 0.95rem;
   line-height: 1.5;
   white-space: nowrap;
-  z-index: 1;
+  z-index: 1; /* below send button */
   max-width: calc(100% - 4rem);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -119,7 +119,7 @@ const TextArea = styled.textarea<{ $rtl: boolean }>`
   flex: 1;
   min-height: 50px;
   max-height: 120px;
-  padding: ${({ $rtl }) => $rtl ? '0.875rem 1rem 0.875rem 2.5rem' : '0.875rem 2.5rem 0.875rem 1rem'};
+  padding: ${({ $rtl }) => $rtl ? '0.875rem 1rem 0.875rem 3.5rem' : '0.875rem 3.5rem 0.875rem 1rem'};
   border: none;
   outline: none;
   background: transparent;
@@ -161,6 +161,7 @@ const SendButton = styled.button<{ $disabled: boolean; $rtl: boolean }>`
   left: ${({ $rtl }) => ($rtl ? '8px' : 'auto')};
   top: 50%;
   transform: translateY(-50%);
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
