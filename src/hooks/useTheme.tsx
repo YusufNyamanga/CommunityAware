@@ -15,10 +15,10 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Default to dark mode as requested
+  // Default to light mode
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('communityaware-theme');
-    return saved ? JSON.parse(saved) : true; // Default to dark mode
+    return saved ? JSON.parse(saved) : false; // Default to light mode
   });
 
   const theme = getTheme(isDark);
