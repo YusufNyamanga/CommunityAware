@@ -10,6 +10,9 @@ const Container = styled.div`
   border-radius: 12px;
   padding: 20px;
   box-sizing: border-box;
+  @media (max-width: 480px) {
+    padding: 14px;
+  }
 `;
 
 const Title = styled.h2`
@@ -21,8 +24,12 @@ const Title = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 `;
 
 const Field = styled.label`
@@ -30,6 +37,7 @@ const Field = styled.label`
   flex-direction: column;
   gap: 6px;
   color: ${({ theme }) => theme.colors.text};
+  min-width: 0;
 `;
 
 const Input = styled.input`
@@ -38,6 +46,9 @@ const Input = styled.input`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.background};
   color: ${({ theme }) => theme.colors.text};
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 `;
 
 const SelectContainer = styled.div`
