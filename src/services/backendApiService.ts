@@ -11,7 +11,9 @@ class BackendApiService {
     const defaultProd = `${w.protocol}//${w.hostname}`;
     const devPorts = new Set(['3000','3001','3002','3003']);
     const inferred = devPorts.has(w.port) ? defaultDev : defaultProd;
-    this.baseURL = process.env.REACT_APP_BACKEND_URL || inferred;
+    // Prefer same-origin relative path in production if env not set
+    const preferRelative = (!devPorts.has(w.port));
+    this.baseURL = process.env.REACT_APP_BACKEND_URL || (preferRelative ? '' : inferred);
     console.log('🔒 Backend API Service initialized (Secure mode)');
     console.log('Backend URL:', this.baseURL);
   }
