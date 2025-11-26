@@ -1,4 +1,5 @@
 import axios from 'axios';
+import fs from 'fs';
 import { faqCacheService } from './faqCacheService';
 
 interface ModelConfig {
@@ -40,10 +41,37 @@ class AiService {
   }
 
   constructor() {
-    this.DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
+    const readSecretFile = (p?: string): string => {
+      try {
+        if (!p) return '';
+        return fs.readFileSync(p, 'utf8').trim();
+      } catch {
+        return '';
+      }
+    };
+    const resolveSecret = (envKey: string, fileEnvKey: string, defaultPaths: string[]): string => {
+      const v = process.env[envKey] || '';
+      if (v) return v;
+      const fromEnvFile = readSecretFile(process.env[fileEnvKey]);
+      if (fromEnvFile) return fromEnvFile;
+      for (const path of defaultPaths) {
+        const val = readSecretFile(path);
+        if (val) return val;
+      }
+      return '';
+    };
+
+    this.DEEPSEEK_API_KEY = resolveSecret('DEEPSEEK_API_KEY', 'DEEPSEEK_API_KEY_FILE', [
+      '/run/secrets/deepseek_api_key',
+      '/var/run/secrets/deepseek_api_key',
+      '/secrets/deepseek_api_key'
+    ]);
     this.DEEPSEEK_API_URL = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/chat/completions';
-    this.MOONSHOT_API_KEY = process.env.MOONSHOT_API_KEY || '';
-    // Use international Moonshot endpoint (no .cn); allow env override
+    this.MOONSHOT_API_KEY = resolveSecret('MOONSHOT_API_KEY', 'MOONSHOT_API_KEY_FILE', [
+      '/run/secrets/moonshot_api_key',
+      '/var/run/secrets/moonshot_api_key',
+      '/secrets/moonshot_api_key'
+    ]);
     this.MOONSHOT_API_URL = process.env.MOONSHOT_API_URL || 'https://api.moonshot.ai/v1/chat/completions';
     
     if (!this.DEEPSEEK_API_KEY) {
