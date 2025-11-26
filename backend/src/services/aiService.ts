@@ -227,23 +227,31 @@ class AiService {
       ];
 
       console.log('Making request to DeepSeek API...');
-      
-      const response = await axios.post(this.DEEPSEEK_API_URL, {
-        model: 'deepseek-chat',
-        messages: messages,
-        temperature: this.getEffectiveTemperature(category),
-        max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1500),
-        top_p: 0.8,
-        stream: false,
-        frequency_penalty: 0.1,
-        presence_penalty: 0.1
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 20000
-      });
+      const postDeepSeek = async (): Promise<any> => {
+        return axios.post(this.DEEPSEEK_API_URL, {
+          model: 'deepseek-chat',
+          messages: messages,
+          temperature: this.getEffectiveTemperature(category),
+          max_tokens: Math.min(this.modelConfig.maxTokens || 2000, 1500),
+          top_p: 0.8,
+          stream: false,
+          frequency_penalty: 0.1,
+          presence_penalty: 0.1
+        }, {
+          headers: {
+            'Authorization': `Bearer ${this.DEEPSEEK_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 20000
+        });
+      };
+      let response: any;
+      try {
+        response = await postDeepSeek();
+      } catch (e) {
+        await new Promise(r => setTimeout(r, 300));
+        response = await postDeepSeek();
+      }
 
       if (response.data?.choices?.[0]?.message?.content) {
         const cleanContent = this.cleanResponse(response.data.choices[0].message.content);

@@ -244,6 +244,9 @@ export const News: React.FC = () => {
   const fetchControllerRef = useRef<AbortController | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [loaderVisible, setLoaderVisible] = useState(true);
+  const loaderStartRef = useRef<number>(Date.now());
+  const MIN_LOADER_MS = 1800;
 
   const RECENT_MS = 24 * 60 * 60 * 1000;
   const isRecent = (dateString: string): boolean => {
@@ -360,6 +363,8 @@ export const News: React.FC = () => {
   const fetchNews = async () => {
     setRefreshing(true);
     setLoading(true);
+    loaderStartRef.current = Date.now();
+    setLoaderVisible(true);
     setError(null);
     setIsUsingCachedData(false);
     
@@ -435,6 +440,12 @@ export const News: React.FC = () => {
       setLoading(false);
       setRefreshing(false);
       setInitialLoad(false);
+      const elapsed = Date.now() - loaderStartRef.current;
+      if (elapsed < MIN_LOADER_MS) {
+        setTimeout(() => setLoaderVisible(false), MIN_LOADER_MS - elapsed);
+      } else {
+        setLoaderVisible(false);
+      }
     }
   };
 
@@ -448,6 +459,8 @@ export const News: React.FC = () => {
       setLastUpdate(cached.lastUpdate);
       setIsUsingCachedData(true);
     }
+    loaderStartRef.current = Date.now();
+    setLoaderVisible(true);
     fetchNews();
     const interval = setInterval(fetchNews, 30 * 60 * 1000);
     return () => {
@@ -474,7 +487,7 @@ export const News: React.FC = () => {
   return (
     <NewsContainer>
       <Title>📰 News</Title>
-      {(loading || initialLoad) && (
+      {loaderVisible && (
         <LoadingMessage><Loader size={20} style={{ marginRight: 8 }} /> Loading news...</LoadingMessage>
       )}
       <RefreshButton onClick={fetchNews}>
