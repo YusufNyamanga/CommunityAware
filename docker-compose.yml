@@ -13,11 +13,6 @@ services:
       - MOONSHOT_API_URL=${MOONSHOT_API_URL}
     ports:
       - "5000:5000"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
     networks:
       - appnet
 
@@ -29,14 +24,8 @@ services:
       - REACT_APP_BACKEND_URL
     ports:
       - "3000:8000"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - appnet
 
