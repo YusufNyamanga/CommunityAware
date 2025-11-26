@@ -37,6 +37,17 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  table {
+    width: 100%;
+    max-width: 100%;
+  }
+
   *::placeholder {
     font-size: 0.95rem;
   }
@@ -192,6 +203,12 @@ export const GlobalStyles = createGlobalStyle<{ theme: Theme }>`
     }
     *::placeholder {
       font-size: 0.85rem;
+    }
+  }
+
+  @media (min-width: 1400px) {
+    body {
+      font-size: 17px;
     }
   }
   

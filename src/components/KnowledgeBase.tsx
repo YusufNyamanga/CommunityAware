@@ -12,8 +12,14 @@ const KnowledgeContainer = styled.div`
   border-radius: 12px;
   padding: 24px;
   margin: 0;
-  height: 100%;
-  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const Title = styled.h2`

@@ -85,6 +85,20 @@ const ContentArea = styled.div`
   overflow: hidden;
 `;
 
+const PageContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+  @media (max-width: 480px) {
+    padding: 10px 8px;
+  }
+`;
+
 type ActiveTab = 'chat' | 'knowledge' | 'community' | 'about' | 'terms' | 'privacy';
 
 // Inner App component that has access to theme
@@ -159,7 +173,9 @@ const AppContent: React.FC = () => {
         <MainContent>
           <ContentArea>
             <Suspense fallback={<div style={{ padding: 20 }}>Loading…</div>}>
-              {renderContent()}
+              <PageContainer>
+                {renderContent()}
+              </PageContainer>
             </Suspense>
           </ContentArea>
         </MainContent>
