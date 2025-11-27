@@ -1,88 +1,56 @@
-# Umoja‑Aware — Coolify Deployment Guide
+# UmojaAware Production Deployment (Coolify + Docker Compose)
 
 ## Overview
-Umoja‑Aware is a React frontend with a Node/Express backend. This deployment guide focuses on Coolify setup for a production domain: `https://umoja-aware.com`.
+This repository contains only the production application sources and Docker files for deploying UmojaAware via Coolify using environment variables (no file secrets required).
 
-## Repository Structure
-- `frontend (root)`
-  - React app, build with `npm run build`, served as static assets from `build/`
-  - PWA: `public/manifest.json`, `public/service-worker.js`
-  - GA and AdSense head scripts in `public/index.html`
-- `backend/`
-  - Node/Express API (TypeScript → `dist/`), start with `npm start`
-  - Security: `helmet`, rate limiting, CORS with `https://umoja-aware.com`
+## Services
+- Frontend: React (CRA), built and served by Nginx on port 8000
+- Backend: Node/Express (TypeScript), listens on port 5000, health endpoint `/health`
 
-## Environment Variables
-Configure in Coolify services; do not commit secrets.
+## Files
+- `docker-compose.yml` – Orchestrates frontend and backend services
+- `Dockerfile` – Frontend multi-stage build (Node → Nginx)
+- `backend/Dockerfile` – Backend build and runtime image
+- `nginx.conf` – Nginx config (frontend), includes `/health`
+- `backend/` – Backend TypeScript sources and configs
+- `src/`, `public/` – Frontend sources and assets
 
-### Frontend
-- `REACT_APP_BACKEND_URL` — Base URL for API (e.g., `https://umoja-aware.com` if reverse‑proxied on same domain; otherwise your API origin)
+## Coolify Configuration
+1. Build Pack: Docker Compose
+2. Base Directory: `/`
+3. Docker Compose Location: `/docker-compose.yml`
+4. Domains:
+   - Frontend: `https://umoja-aware.com`
+   - Backend: `https://api.umoja-aware.com`
 
-### Backend
-- `NODE_ENV=production`
-- `PORT=5000` (or the service port you expose)
-- `JWT_SECRET=<strong_random_string>`
-- `RATE_LIMIT_MAX_REQUESTS=120` (example)
-- `RATE_LIMIT_WINDOW=900000` (15 minutes)
-- Optional AI providers:
-  - `DEEPSEEK_API_KEY=<key>`
-  - `DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions` (default)
-  - `MOONSHOT_API_KEY=<key>`
-  - `MOONSHOT_API_URL=https://api.moonshot.cn/v1/chat/completions`
+### Environment Variables (Runtime only)
+#### Backend
+```
+PORT=5000
+NODE_ENV=production
+DEEPSEEK_API_KEY=sk-a88de1bf5a604793bed69e1893c8fa34
+DEEPSEEK_API_URL=https://api.deepseek.com/chat/completions
+MOONSHOT_API_KEY=sk-d0RcC70ujgic7dFc2GxD8N9XbYncZslpNh4EHBd2fUFSyxfe
+MOONSHOT_API_URL=https://api.moonshot.ai/v1/chat/completions
+CORS_ORIGINS=https://umoja-aware.com,https://www.umoja-aware.com
+```
 
-## Build & Run Commands
-### Frontend (React)
-- Build: `npm run build`
-- Output directory: `build`
+#### Frontend
+```
+REACT_APP_BACKEND_URL=https://api.umoja-aware.com
+```
 
-### Backend (Node/Express)
-- Build: `npm run build`
-- Run: `npm start`
-- Health check: `GET /health`
+### Healthchecks
+- Backend: `GET /health` → `{ "status": "ok" }`
+- Frontend (Nginx): `GET /health` → `ok`
 
-## Coolify Setup
-Create two services:
-
-### 1) Frontend Service
-- Type: Static site or Node app serving `build/`
-- Build command: `npm ci && npm run build`
-- Output directory: `build`
-- Env:
-  - `REACT_APP_BACKEND_URL` pointing to your API base URL
-- Domain: `https://umoja-aware.com`
-
-### 2) Backend Service
-- Type: Node app
-- Build command: `npm ci && npm run build`
-- Run command: `npm start`
-- Env: set all backend variables listed above
-- Healthcheck: `GET /health`
-- CORS: already whitelisted for `https://umoja-aware.com` and `https://www.umoja-aware.com`
-
-## Security Notes
-- No secrets are hardcoded. Provider keys are read from environment.
-- `helmet` adds HTTP security headers.
-- Rate limits applied to chat/news/jobs endpoints.
-- Debug/test endpoints are disabled in production.
-- Service Worker avoids caching API and `/health` routes.
-
-## Ads & Analytics
-- GA4 tag and AdSense client script are embedded in `public/index.html`:
-  - GA: `G-TXVHX0VBRR`
-  - AdSense: `ca-pub-6949690818884998`
-- Footer renders a responsive AdSense unit. No additional configuration is required in Coolify.
-
-## PWA Icons & Favicon
-- `favicon.svg` is used for all PWA icon sizes (64/192/512, maskable) in `manifest.json`.
-
-## Troubleshooting
-- If deployment fails on the backend:
-  - Verify `NODE_ENV=production` and `JWT_SECRET` are set.
-  - Confirm the service port and healthcheck settings.
-  - Ensure the configured domain matches CORS allowed origins.
-- If the frontend cannot reach API:
-  - Confirm `REACT_APP_BACKEND_URL` points to the correct origin.
-  - Check browser console network logs; verify HTTPS and CORS.
+## Verify After Deploy
+1. `GET https://api.umoja-aware.com/health` returns `{ "status": "ok" }`
+2. `POST https://api.umoja-aware.com/api/test-ai-direct` returns content
+3. Open `https://umoja-aware.com`
+   - News shows loader briefly then items
+   - Chat returns AI responses
 
 ## Notes
-- For additional ad placements or analytics events, update the React components and/or head scripts as needed without changing deployment steps.
+- Provider keys are environment variables only; do not commit secrets.
+- CORS origins can be extended via `CORS_ORIGINS` env.
