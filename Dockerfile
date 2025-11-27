@@ -7,7 +7,7 @@ COPY public ./public
 COPY src ./src
 RUN npm run build
 
-FROM nginx:alpine
+FROM nginx:alpine AS frontend
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 8000
