@@ -5,8 +5,8 @@
   "description": "Umoja-Aware - AI Legal Assistant for Bahrain Community - Legal queries, labour law, company formation and visa assistance",
   "main": "src/index.tsx",
   "scripts": {
-    "start": "react-scripts start",
-    "start:network": "BROWSER=none HOST=0.0.0.0 react-scripts start",
+    "start": "set PORT=3000 && react-scripts start",
+    "start:network": "set PORT=3000 && set BROWSER=none && set HOST=0.0.0.0 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
